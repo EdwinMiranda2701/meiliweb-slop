@@ -1,10 +1,7 @@
-/** @type {import('tailwindcss').Config} */
-const TailwindForms = require('@tailwindcss/forms')
-const ContainerQueries = require('@tailwindcss/container-queries')
-const VueSlider = require('@vueform/slider/tailwind')
+import TailwindForms from '@tailwindcss/forms'
 
-module.exports = {
-  plugins: [TailwindForms({ strategy: 'class' }), ContainerQueries, VueSlider],
+export default {
+  plugins: [TailwindForms({ strategy: 'class' })],
   theme: {
     extend: {
       colors: {

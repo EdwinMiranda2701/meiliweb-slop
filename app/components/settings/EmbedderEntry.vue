@@ -34,7 +34,7 @@
         v-if="'huggingFace' === embedder[1]!.source"
         v-model="embedder[1] as HuggingFaceEmbedder" />
 
-      <UniqueId v-if="'userProvided' !== embedder[1]!.source" v-slot="{ id }" as="section" class="flex flex-col gap-1">
+      <UniqueId v-if="'documentTemplate' in embedder[1]!" v-slot="{ id }" as="section" class="flex flex-col gap-1">
         <Label :for="id">{{ t('labels.documentTemplate') }}</Label>
         <Textarea v-model="embedder[1]!.documentTemplate" class="form-input w-full text-sm" rows="5" />
       </UniqueId>

@@ -21,11 +21,11 @@
 </template>
 
 <script setup lang="ts">
-import type { ComponentPublicInstance } from 'vue'
+import type { Component } from 'vue'
 import match from 'match-operator'
 
 type Props = {
-  as?: string | ComponentPublicInstance
+  as?: string | Component
   type?: 'submit' | 'reset' | 'button' | undefined
   theme?: 'primary' | 'secondary'
   icon?: string
@@ -52,10 +52,10 @@ const type = computed(() => props.type ?? ('button' === props.as ? 'button' : un
 const themeClasses = computed(() => {
   const classes = []
 
-  props.noBorder || classes.push('border')
-  props.noPadding || classes.push(...('small' === props.size ? ['py-1', 'px-2'] : ['py-1.5', 'px-4']))
-  props.noRounded || classes.push('rounded-lg')
-  'small' === props.size && classes.push('text-sm')
+  if (!props.noBorder) classes.push('border')
+  if (!props.noPadding) classes.push(...('small' === props.size ? ['py-1', 'px-2'] : ['py-1.5', 'px-4']))
+  if (!props.noRounded) classes.push('rounded-lg')
+  if ('small' === props.size) classes.push('text-sm')
 
   if ('submit' === props.type || 'primary' === props.theme) {
     classes.push(
@@ -89,7 +89,7 @@ const themeClasses = computed(() => {
 })
 
 const text = computed(() =>
-  match(props.type, [
+  match(props.type ?? 'button', [
     ['submit', t('buttons.submit')],
     ['reset', t('buttons.cancel')],
     [match.default, ''],

@@ -1,6 +1,6 @@
 import { asyncComputed } from '@vueuse/core'
 import { defineStore } from 'pinia'
-import semver from 'semver/preload'
+import semver from 'semver'
 
 export const useVersion = defineStore('version', {
   state: () => ({}),
@@ -12,7 +12,7 @@ export const useVersion = defineStore('version', {
   },
   actions: {
     satisfiesVersion(version: string) {
-      return semver.satisfies(unref(this.version)?.pkgVersion, version)
+      return semver.satisfies(unref(this.version)?.pkgVersion ?? '0.0.0', version)
     },
   },
 })

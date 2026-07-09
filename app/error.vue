@@ -1,9 +1,9 @@
 <template>
   <ConfirmationDialog v-if="confirmationDialog" v-bind="confirmationDialog" />
-  <div class="mx-auto flex h-full max-w-5xl flex-col items-center justify-between pb-32 pt-10">
+  <div class="mx-auto flex h-full max-w-5xl flex-col items-center justify-between pt-10 pb-32">
     <header>
       <a href="/" class="flex items-center justify-center gap-2">
-        <img class="-ml-10 size-16 shrink-0 grow-0" src="/assets/images/logo.svg" alt="Meiliweb" />
+        <img class="-ml-10 size-16 shrink-0 grow-0" :src="logoUrl" alt="Meiliweb" />
         <span class="text-3xl font-semibold">Meiliweb</span>
       </a>
     </header>
@@ -11,10 +11,10 @@
     <main>
       <h1 class="text-center text-5xl">😵 {{ t('title') }}</h1>
       <div class="mt-6 flex max-w-xl items-center gap-4">
-        <p v-if="error.statusCode" class="text-5xl font-semibold text-primary-600">
+        <p v-if="error.statusCode" class="text-primary-600 text-5xl font-semibold">
           {{ error.statusCode }}
         </p>
-        <p class="leading-2 text-justify text-base text-gray-600" v-html="errorMessage" />
+        <p class="text-justify text-base leading-2 text-gray-600" v-html="errorMessage" />
       </div>
     </main>
 
@@ -27,16 +27,17 @@
 </template>
 
 <script setup lang="ts">
-import type { NuxtError } from '#app'
+import type { AppError } from '~/runtime/app'
 import { safeToRefs } from '~/utils'
 import { useConfirmationDialog, useCredentials } from '~/stores'
 import LogoutButton from '~/components/layout/LogoutButton.vue'
 import ConfirmationDialog from '~/components/layout/ConfirmationDialog.vue'
 import Button from '~/components/layout/forms/Button.vue'
 import { useI18n } from 'vue-i18n'
+import logoUrl from '~/assets/images/logo.svg'
 
 type Props = {
-  error: NuxtError
+  error: AppError
 }
 const props = defineProps<Props>()
 

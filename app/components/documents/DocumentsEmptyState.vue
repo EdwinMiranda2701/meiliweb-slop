@@ -8,7 +8,7 @@
       <p class="text-5xl font-light text-gray-700">🧐</p>
       <p class="text-2xl font-light text-gray-700">{{ t('emptyIndex') }}</p>
       <Button
-        :as="NuxtLink"
+        :as="RouterLink"
         :to="`/indexes/${indexUid}/settings/import-documents`"
         theme="primary"
         icon="ph:upload-fill">
@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { NuxtLink } from '#components'
+import { RouterLink } from 'vue-router'
 import Button from '~/components/layout/forms/Button.vue'
 import { useI18n } from 'vue-i18n'
 

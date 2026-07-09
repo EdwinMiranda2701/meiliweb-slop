@@ -3,7 +3,7 @@
     <h3 class="inline-flex w-full items-start justify-between">
       <span class="inline-flex flex-col gap-1">
         <span class="text-xl font-semibold">{{ t('title') }}</span>
-        <span class="text-sm italic text-gray-600">
+        <span class="text-sm text-gray-600 italic">
           {{ t('description') }}
         </span>
       </span>
@@ -55,7 +55,7 @@
 
     <UniqueId v-if="satisfiesVersion('^1.15')" v-slot="{ id }" as="div" class="col-span-8">
       <Label :for="id">{{ t('labels.disableOnNumbers') }}</Label>
-      <SplitLinesTextarea v-model="typoTolerance!.disableOnNumbers!" class="h-20 w-full text-sm" />
+      <input v-model="typoTolerance!.disableOnNumbers" autocomplete="off" type="checkbox" />
     </UniqueId>
 
     <footer class="flex flex-col items-center justify-between sm:flex-row">
@@ -77,7 +77,6 @@ import { resettableRef } from '~/utils'
 import Button from '~/components/layout/forms/Button.vue'
 import Buttons from '~/components/layout/forms/Buttons.vue'
 import type { Task } from 'meilisearch'
-import { useConfirmationDialog } from '#imports'
 import DocumentationLink from '~/components/layout/DocumentationLink.vue'
 import Label from '~/components/layout/forms/Label.vue'
 import SplitLinesTextarea from '~/components/layout/forms/SplitLinesTextarea.vue'
@@ -114,7 +113,7 @@ const submit = async () => {
     await processTask(() => index.updateTypoTolerance(self.typoTolerance), {
       onSuccess: async () => {
         toast.update({ ...TOAST_SUCCESS(t) })
-        reset(self.typoTolerance)
+        reset(await index.getTypoTolerance())
       },
       onCanceled: () =>
         toast.update({
@@ -129,7 +128,6 @@ const submit = async () => {
         emit('error', task.error as TaskError)
       },
     })
-    reset(self.typoTolerance)
   })
 }
 const resetToInitialValue = async () => {
@@ -145,7 +143,7 @@ const resetToInitialValue = async () => {
   await processTask(() => index.resetTypoTolerance(), {
     onSuccess: async () => {
       toast.update({ ...TOAST_SUCCESS(t) })
-      reset([])
+      reset(await index.getTypoTolerance())
     },
     onCanceled: () =>
       toast.update({

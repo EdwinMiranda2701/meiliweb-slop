@@ -1,4 +1,3 @@
-import { navigateTo, xxh32 } from '#imports'
 import { useLocalStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 

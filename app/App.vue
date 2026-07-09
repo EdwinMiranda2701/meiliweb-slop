@@ -1,38 +1,47 @@
 <template>
-  <!--  <Login v-if="!credentials" />-->
-  <div class="relative h-dvh">
-    <NuxtPage :page-key="pageKey" />
-    <DebugMemory
-      v-if="IS_DEV_MODE && config.public.debugMemoryUsage"
-      class="absolute bottom-0 flex w-full items-center justify-center gap-4 pb-6 text-xs text-gray-600" />
-  </div>
-  <Toaster />
-  <ConfirmationDialog v-if="confirmationDialog" v-bind="confirmationDialog" />
-  <PromisifiedDialogs />
+  <ErrorPage v-if="appError" :error="appError" />
+  <template v-else>
+    <div class="relative h-dvh">
+      <RouterView v-slot="{ Component }">
+        <Suspense>
+          <component :is="Component" :key="pageKey" />
+        </Suspense>
+      </RouterView>
+      <DebugMemory
+        v-if="IS_DEV_MODE && config.public.debugMemoryUsage"
+        class="absolute bottom-0 flex w-full items-center justify-center gap-4 pb-6 text-xs text-gray-600" />
+    </div>
+    <Toaster />
+    <ConfirmationDialog v-if="confirmationDialog" v-bind="confirmationDialog" />
+    <PromisifiedDialogs />
+  </template>
 </template>
 
 <script setup lang="ts">
+import { appError, showError } from '~/runtime/app'
 import Toaster from '~/components/layout/toasts/Toaster.vue'
 import ConfirmationDialog from '~/components/layout/ConfirmationDialog.vue'
 import PromisifiedDialogs from '~/components/layout/dialogs/PromisifiedDialogs.vue'
+import ErrorPage from '~/error.vue'
 import { safeToRefs } from '~/utils'
 import { useConfirmationDialog, useCredentials } from '~/stores'
 import { toRefs } from 'vue'
 
 const route = useRoute()
-const { locale } = useI18n()
 const { confirmationDialog } = safeToRefs(useConfirmationDialog())
-const IS_DEV_MODE = import.meta.dev
+const IS_DEV_MODE = import.meta.env.DEV
 const config = useRuntimeConfig()
 const { credentials } = toRefs(useCredentials())
 const self: any = reactive({
   credentials,
-  pageKey: computed(() => {
-    return [route.fullPath, self.credentials?.id].join(':')
-  }),
+  pageKey: computed(() => [route.fullPath, self.credentials?.id].join(':')),
 })
 
 const { pageKey } = toRefs(self)
+onErrorCaptured((error) => {
+  showError(error)
+  return false
+})
 
 useHead({
   htmlAttrs: {
@@ -68,31 +77,23 @@ en:
     reset: Reset
     cancel: Cancel
     submit: Submit
-
 </i18n>
 
-<style lang="scss">
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+<style>
+@config '../tailwind.config.js';
+@import 'tailwindcss';
+
 @layer components {
-  /* @tailwindcss/forms enhancement */
   .form-input,
   .form-checkbox {
-    @apply rounded-md border-gray-300 shadow-sm focus:border-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-600;
+    @apply focus:border-primary-300 focus:ring-primary-600 rounded-md border-gray-300 shadow-sm focus:ring-2 focus:outline-none;
   }
   .form-checkbox {
-    @apply rounded-sm text-primary-600;
-  }
-  /* Ensure main container has full height */
-  #__nuxt {
-    @apply h-full;
+    @apply text-primary-600 rounded-sm;
   }
 }
-@layer components {
-  @import '../node_modules/@vueform/slider/themes/tailwind';
-}
+
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'DM Sans Variable', sans-serif;
 }
 </style>

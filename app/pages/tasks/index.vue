@@ -27,56 +27,48 @@
       ]">
       <template #default="{ index }">
         <td class="whitespace-nowrap">
-          {{ stringifyTaskType(tasks.results[index].type) }}
+          {{ stringifyTaskType(taskAt(index).type) }}
         </td>
         <td>
-          <Badge :theme="'succeeded' === tasks.results[index].status ? 'success' : 'danger'">
-            {{ tasks.results[index].status }}
+          <Badge :theme="'succeeded' === taskAt(index).status ? 'success' : 'danger'">
+            {{ taskAt(index).status }}
           </Badge>
         </td>
         <td>
-          <NuxtLink
-            v-if="tasks.results[index].indexUid"
-            :to="`/indexes/${tasks.results[index].indexUid}/documents`"
-            class="font-semibold text-primary-800 hover:text-primary-700 hover:underline">
-            {{ tasks.results[index].indexUid }}
-          </NuxtLink>
+          <RouterLink
+            v-if="taskAt(index).indexUid"
+            :to="`/indexes/${taskAt(index).indexUid}/documents`"
+            class="text-primary-800 hover:text-primary-700 font-semibold hover:underline">
+            {{ taskAt(index).indexUid }}
+          </RouterLink>
         </td>
         <td>
-          <UseTreeRendering v-if="'failed' === tasks.results[index].status" :value="tasks.results[index].error" />
-          <span v-else-if="'documentAdditionOrUpdate' === tasks.results[index].type">
+          <UseTreeRendering v-if="'failed' === taskAt(index).status" :value="taskAt(index).error" />
+          <span v-else-if="'documentAdditionOrUpdate' === taskAt(index).type">
             {{
               t('labels.documentIndexRatio', {
-                indexedDocuments: tasks.results[index].details.indexedDocuments ?? 0,
-                receivedDocuments: tasks.results[index].details.receivedDocuments,
+                indexedDocuments: taskAt(index).details?.indexedDocuments ?? 0,
+                receivedDocuments: taskAt(index).details?.receivedDocuments,
               })
             }}
           </span>
-          <UseTreeRendering v-else :value="tasks.results[index].details" />
+          <UseTreeRendering v-else :value="taskAt(index).details" />
         </td>
         <td class="whitespace-nowrap">
-          {{
-            formatDate(
-              match(tasks.results[index].status, [
-                [['enqueued', 'canceled'], [tasks.results[index].enqueuedAt]],
-                ['processing', [tasks.results[index].startedAt]],
-                [match.default, [tasks.results[index].finishedAt]],
-              ]),
-            )
-          }}
+          {{ formatDate(taskDate(taskAt(index))) }}
         </td>
         <td class="text-right">
-          <template v-if="tasks.results[index].duration">
-            {{ formatDuration(tasks.results[index].duration) }}
+          <template v-if="taskAt(index).duration">
+            {{ formatDuration(taskAt(index).duration!) }}
           </template>
         </td>
         <td class="text-right">
-          <template v-if="['enqueued', 'processing'].includes(tasks.results[index].status)">
+          <template v-if="['enqueued', 'processing'].includes(taskAt(index).status)">
             <Button
               theme="primary"
               size="small"
               icon="mdi:close"
-              @click="cancelTask(tasks.results[index])"
+              @click="cancelTask(taskAt(index))"
               class="w-full flex-row-reverse">
               {{ t('buttons.cancel') }}
             </Button>
@@ -89,10 +81,9 @@
 </template>
 
 <script setup lang="ts">
-import { useMeiliClient, useDateFormatter } from '#imports'
 import { tryOrThrow } from '~/utils'
 import match from 'match-operator'
-import { NuxtLink } from '#components'
+import { RouterLink } from 'vue-router'
 import Table from '~/components/layout/tables/Table.vue'
 import Badge from '~/components/layout/Badge.vue'
 import { type Task } from 'meilisearch'
@@ -135,7 +126,13 @@ const stringifyTaskType = (type: string) =>
   ])
 
 const { tasks, pendingTasks } = toRefs(self)
-watchImmediate(tasks, (tasks) => (self.lastTaskUid = tasks.results[tasks.results.length - 1]!.uid), { deep: true })
+const taskAt = (index: number) => self.tasks.results[index]!
+const taskDate = (task: Task) => {
+  if (['enqueued', 'canceled'].includes(task.status)) return task.enqueuedAt
+  if ('processing' === task.status) return task.startedAt ?? null
+  return task.finishedAt ?? null
+}
+watchImmediate(tasks, (tasks) => (self.lastTaskUid = tasks.results.at(-1)?.uid ?? 0), { deep: true })
 const handleInfiniteLoading = async () => {
   const nextTasks = await tryOrThrow(() => meili.tasks.getTasks({ from: self.lastTaskUid }))
   self.tasks.results.push(...nextTasks.results)

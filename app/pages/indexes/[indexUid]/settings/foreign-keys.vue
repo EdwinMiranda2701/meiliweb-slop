@@ -7,9 +7,9 @@
 
     <Alert v-if="!featureEnabled" theme="warning" :title="t('disabled.title')">
       {{ t('disabled.text') }}
-      <NuxtLink to="/experimental-features" class="font-medium underline">
+      <RouterLink to="/experimental-features" class="font-medium underline">
         {{ t('disabled.link') }}
-      </NuxtLink>
+      </RouterLink>
     </Alert>
 
     <Alert v-else-if="endpointUnavailable" theme="danger" :title="t('unavailable.title')">
@@ -29,14 +29,14 @@
         <table class="min-w-full divide-y divide-gray-200 text-sm">
           <thead class="bg-gray-50">
             <tr>
-              <th class="py-2 pl-4 pr-2 text-left font-medium text-gray-700">{{ t('table.fieldName') }}</th>
+              <th class="py-2 pr-2 pl-4 text-left font-medium text-gray-700">{{ t('table.fieldName') }}</th>
               <th class="px-2 py-2 text-left font-medium text-gray-700">{{ t('table.foreignIndex') }}</th>
-              <th class="py-2 pl-2 pr-4 text-right font-medium text-gray-700"></th>
+              <th class="py-2 pr-4 pl-2 text-right font-medium text-gray-700"></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 bg-white">
             <tr v-for="(row, i) in rows" :key="i" class="group">
-              <td class="py-1.5 pl-4 pr-2">
+              <td class="py-1.5 pr-2 pl-4">
                 <input
                   v-model="row.fieldName"
                   type="text"
@@ -49,17 +49,17 @@
                   <option v-for="uid in indexUidsFor(row)" :key="uid" :value="uid">{{ uid }}</option>
                 </select>
               </td>
-              <td class="py-1.5 pl-2 pr-4 text-right">
+              <td class="py-1.5 pr-4 pl-2 text-right">
                 <button
                   type="button"
-                  class="text-gray-400 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
+                  class="text-gray-400 opacity-0 transition-opacity group-hover:opacity-100 hover:text-red-500"
                   @click="removeRow(i)">
                   <Icon name="mdi:close" />
                 </button>
               </td>
             </tr>
             <tr v-if="rows.length === 0">
-              <td colspan="3" class="px-4 py-4 text-center text-sm italic text-gray-400">
+              <td colspan="3" class="px-4 py-4 text-center text-sm text-gray-400 italic">
                 {{ t('emptyState') }}
               </td>
             </tr>
@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { NuxtLink } from '#components'
+import { RouterLink } from 'vue-router'
 import Button from '~/components/layout/forms/Button.vue'
 import Buttons from '~/components/layout/forms/Buttons.vue'
 import DocumentationLink from '~/components/layout/DocumentationLink.vue'

@@ -25,7 +25,7 @@ export const useFields = (primaryKey: MaybeRef<string>, fields: MaybeRef<Array<s
       self.nameField,
       ...self.fields.filter((field: string) => ![self.primaryKey, self.nameField].includes(field)),
     ]),
-    fieldsWithoutPrimaryKey: computed(() => [...self.fields.filter((field: string) => field !== self.primaryKey)]),
+    fieldsWithoutPrimaryKey: computed(() => self.fields.filter((field: string) => field !== self.primaryKey)),
   })
 
   return {

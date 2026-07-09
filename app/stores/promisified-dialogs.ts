@@ -86,7 +86,7 @@ export const usePromisifiedDialogs = defineStore('promisified-dialogs', () => {
    */
   function openDialog<C extends DefineComponent<any, any, any, any, any>>(
     dialog: C,
-    props?: PropsType<C>,
+    props?: PropsType<C> | Record<string, unknown>,
     wrapper: string = 'default',
   ): Promise<ReturnType<C>> {
     return new Promise((resolve, reject) => {

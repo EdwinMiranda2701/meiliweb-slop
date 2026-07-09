@@ -1,5 +1,3 @@
-import { navigateTo, useRoute } from '#imports'
-
 export const useMultiTenancy = () => {
   const route = useRoute()
 
@@ -8,7 +6,7 @@ export const useMultiTenancy = () => {
     clearTenantToken: () => {
       const query = { ...toRaw(route.query) }
       delete query.tenantToken
-      navigateTo({
+      void navigateTo({
         name: route.name as string,
         params: route.params,
         query,

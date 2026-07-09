@@ -1,13 +1,19 @@
+import type { Pinia } from 'pinia'
+import type { NavigationGuard } from 'vue-router'
 import { useCredentials } from '~/stores'
 
-export default defineNuxtRouteMiddleware((to, from) => {
-  const { credentials, logout } = useCredentials()
+export const createCredentialsGuard =
+  (pinia: Pinia): NavigationGuard =>
+  (to) => {
+    if (to.name === 'login') {
+      return true
+    }
 
-  if (to.name === 'login') {
+    if (!useCredentials(pinia).credentials) {
+      return { name: 'login' }
+    }
+
     return true
   }
 
-  if (!credentials) {
-    return navigateTo('/login')
-  }
-})
+export default createCredentialsGuard

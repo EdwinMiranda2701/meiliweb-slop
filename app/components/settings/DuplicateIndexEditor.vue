@@ -3,7 +3,7 @@
     <UniqueId as="section" v-slot="{ id }" class="flex flex-col gap-1">
       <Label required :for="id">{{ t('labels.duplicateIndexUid') }}</Label>
       <input v-model="self.duplicateIndexUid" required autofocus autocomplete="off" type="text" class="form-input" />
-      <p class="text-xs italic text-gray-600">
+      <p class="text-xs text-gray-600 italic">
         {{ t('notices.duplicateIndex.text') }}
       </p>
     </UniqueId>
@@ -26,7 +26,6 @@ import Button from '~/components/layout/forms/Button.vue'
 import Label from '~/components/layout/forms/Label.vue'
 import { TaskError, useIndexOperations } from '~/composables'
 import { promiseTimeout } from '@vueuse/core'
-import { navigateTo } from '#imports'
 
 const emit = defineEmits<{
   (e: 'error', error: TaskError): void

@@ -73,11 +73,11 @@ export class PromisifiedFileReader<T> implements AsyncIterable<T> {
 
     this.readPositions = { start, end }
 
-    const blobSlice = Blob.prototype.slice || (Blob.prototype as any).mozSlice || (Blob.prototype as any).webkitSlice
+    const blobSlice = (start: number, end: number) => this.source.slice(start, end)
 
     return new Promise((resolve, reject) => {
       this.currentRead = { resolve, reject }
-      this.reader.readAsArrayBuffer(blobSlice.call(this.source, start, end))
+      this.reader.readAsArrayBuffer(blobSlice(start, end))
     })
   }
 

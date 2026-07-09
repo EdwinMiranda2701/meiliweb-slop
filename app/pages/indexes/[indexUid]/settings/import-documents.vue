@@ -10,7 +10,7 @@
 
     <UniqueId as="section" v-slot="{ id }" class="space-y-1 *:block">
       <Label required :for="id">{{ t('labels.pickAFile') }}</Label>
-      <input type="file" required class="form-input w-full" @change="file = $event.target?.files?.[0]" />
+      <input type="file" required class="form-input w-full" @change="selectFile" />
     </UniqueId>
 
     <UniqueId as="section" v-slot="{ id }" class="space-y-1 *:block">
@@ -73,6 +73,10 @@ const self = reactive({
   updateMode,
   contentType: ref('application/json') as Ref<ContentType>,
 })
+
+const selectFile = (event: Event) => {
+  self.file = (event.target as HTMLInputElement).files?.[0]
+}
 
 const submit = async () => {
   if (!(await confirm({ text: t('confirmations.import') }))) {

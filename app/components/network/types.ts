@@ -1,11 +1,10 @@
 /**
  * Local types for the Meilisearch Network topology (>= 1.37).
  *
- * The installed `meilisearch` client (v0.51.0) ships an OLDER `Network`/`Remote`
- * shape (only `self` + `remotes{url, searchApiKey}`). The 1.37+ topology adds
- * `leader`, `writeApiKey` on remotes, and `shards`. We define our own types here
- * rather than editing node_modules or relying on the stale client types, and cast
- * the client's `getNetwork()` / `updateNetwork()` results to these.
+ * These local types keep the editable UI model explicit and normalize optional
+ * fields returned by the client into stable empty records and nullable identity
+ * values. Network updates still use the endpoint's complete PATCH payload because
+ * the current client exposes only narrower, operation-specific update helpers.
  *
  * @see https://www.meilisearch.com/docs/reference/api/network
  */

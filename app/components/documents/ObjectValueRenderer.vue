@@ -15,7 +15,7 @@ import ValueRenderer from './ValueRenderer.vue'
 type Props = {
   indexUid: string
   field: string
-  value: Object
+  value: object
   level: number
 }
 

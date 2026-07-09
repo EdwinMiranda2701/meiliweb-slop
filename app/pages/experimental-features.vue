@@ -24,7 +24,6 @@
 </template>
 
 <script setup lang="ts">
-import { useMeiliClient, useToasts } from '#imports'
 import { TOAST_FAILURE, TOAST_PLEASEWAIT, TOAST_SUCCESS } from '~/stores/toasts'
 import Alert from '~/components/layout/Alert.vue'
 import DocumentationLink from '~/components/layout/DocumentationLink.vue'

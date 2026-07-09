@@ -1,18 +1,45 @@
-FROM node:18-alpine
+# syntax=docker/dockerfile:1
 
-RUN apk add --no-cache bash git openssh
+FROM ghcr.io/voidzero-dev/vite-plus:0.2.4 AS build
 
 WORKDIR /app
 
-COPY package*.json yarn.lock ./
+# Keep dependency installation cacheable and let Vite+ provision the pinned
+# Node.js and pnpm versions declared by the project.
+COPY --chown=vp:vp package.json pnpm-lock.yaml pnpm-workspace.yaml .node-version ./
+RUN vp install --frozen-lockfile
 
-COPY . .
+COPY --chown=vp:vp . .
+RUN vp build
 
-WORKDIR /app/app
+FROM nginx:1.31.2-alpine AS runtime
 
-RUN yarn install
-RUN yarn build
+COPY <<'EOF' /etc/nginx/conf.d/default.conf
+server {
+    listen 80;
+    server_name _;
 
-EXPOSE 3000
+    root /usr/share/nginx/html;
+    index index.html;
 
-CMD ["yarn", "preview"]
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    location = /index.html {
+        add_header Cache-Control "no-cache";
+    }
+}
+EOF
+
+COPY --from=build /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

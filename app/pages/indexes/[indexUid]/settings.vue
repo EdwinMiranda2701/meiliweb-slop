@@ -1,9 +1,9 @@
 <template>
   <Layout :title="humanizeString(index.uid)" :subtitle="t('subtitle')">
     <template #title-actions>
-      <NuxtLink :to="`/indexes/${index.uid}/documents`" v-tippy="t('actions.documents')">
+      <RouterLink :to="`/indexes/${index.uid}/documents`" v-tippy="t('actions.documents')">
         <Icon name="pajamas:documents" />
-      </NuxtLink>
+      </RouterLink>
     </template>
     <div class="grid grid-cols-12 gap-4">
       <menu class="col-span-3 mb-12 space-y-3">
@@ -11,21 +11,20 @@
           v-for="{ href, text, current } of navigation"
           class="block w-full rounded-lg shadow-md"
           :class="current ? 'bg-primary-600 text-white' : 'bg-gray-50 hover:bg-gray-100'">
-          <NuxtLink :to="href" class="block size-full px-2 py-2.5 text-sm">
+          <RouterLink :to="href" class="block size-full px-2 py-2.5 text-sm">
             {{ text }}
-          </NuxtLink>
+          </RouterLink>
         </li>
       </menu>
       <div class="col-span-9 mb-12">
-        <NuxtPage :index-uid="index.uid" />
+        <RouterView :index-uid="index.uid" />
       </div>
     </div>
   </Layout>
 </template>
 
 <script setup lang="ts">
-import { NuxtLink, NuxtPage } from '#components'
-import { onMounted } from 'vue'
+import { RouterLink, RouterView } from 'vue-router'
 import { useMeiliClient } from '~/composables'
 import { tryOrThrow } from '~/utils'
 import humanizeString from 'humanize-string'
@@ -124,14 +123,6 @@ const navigation: Array<NavigationItem> = reactive([
     text: t('menu.localSettings'),
   },
 ])
-
-onMounted(() => {
-  if ('indexes-indexUid-settings' === route.name) {
-    navigateTo(`/indexes/${index.uid}/settings/general-settings`, {
-      replace: true,
-    })
-  }
-})
 </script>
 
 <i18n>

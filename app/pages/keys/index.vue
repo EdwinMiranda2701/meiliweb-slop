@@ -1,12 +1,12 @@
 <template>
   <Layout :title="t('title')">
     <template #title-actions>
-      <NuxtLink to="/keys/settings" v-tippy="t('actions.settings')">
+      <RouterLink to="/keys/settings" v-tippy="t('actions.settings')">
         <Icon name="heroicons-outline:cog" />
-      </NuxtLink>
+      </RouterLink>
     </template>
     <template #actions>
-      <Button :as="NuxtLink" to="/keys/settings/create" theme="primary" icon="pajamas:doc-new">
+      <Button :as="RouterLink" to="/keys/settings/create" theme="primary" icon="pajamas:doc-new">
         {{ t('actions.create') }}
       </Button>
     </template>
@@ -60,7 +60,7 @@
           <span v-if="formatDate(keys.results[i].expiresAt)">
             {{ formatDate(keys.results[i].expiresAt) }}
           </span>
-          <span v-else class="font-light italic text-gray-500">
+          <span v-else class="font-light text-gray-500 italic">
             {{ t('placeholders.never') }}
           </span>
         </td>
@@ -71,7 +71,7 @@
 
 <script setup lang="ts">
 import { tryOrThrow } from '~/utils'
-import { NuxtLink } from '#components'
+import { RouterLink } from 'vue-router'
 import Table from '~/components/layout/tables/Table.vue'
 import ClipboardButton from '~/components/layout/forms/ClipboardButton.vue'
 import Button from '~/components/layout/forms/Button.vue'

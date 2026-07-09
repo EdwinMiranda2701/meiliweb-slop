@@ -17,7 +17,6 @@
 import Button from '~/components/layout/forms/Button.vue'
 import Label from '~/components/layout/forms/Label.vue'
 import { promiseTimeout } from '@vueuse/core'
-import { navigateTo, TaskError, useIndexOperations } from '#imports'
 
 const emit = defineEmits<{
   (e: 'error', error: TaskError): void

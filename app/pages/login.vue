@@ -1,11 +1,11 @@
 <template>
   <div class="bg-bubbles flex h-dvh flex-col items-center justify-center gap-6">
     <div
-      class="-mt-20 w-full max-w-lg space-y-6 rounded-lg border-gray-200 bg-white bg-opacity-90 px-6 py-4 md:w-1/2 md:border md:px-0 md:shadow-lg">
-      <NuxtLink to="/indexes" class="flex items-center justify-center gap-2">
-        <img class="-ml-10 size-16 shrink-0 grow-0" src="~/assets/images/logo.svg" alt="Meiliweb" />
+      class="bg-opacity-90 -mt-20 w-full max-w-lg space-y-6 rounded-lg border-gray-200 bg-white px-6 py-4 md:w-1/2 md:border md:px-0 md:shadow-lg">
+      <RouterLink to="/indexes" class="flex items-center justify-center gap-2">
+        <img class="-ml-10 size-16 shrink-0 grow-0" :src="logoUrl" alt="Meiliweb" />
         <span class="text-3xl font-semibold">Meiliweb</span>
-      </NuxtLink>
+      </RouterLink>
 
       <form class="space-y-4 p-4" @submit.prevent="submit(credentials)">
         <h1 class="text-lg font-semibold">
@@ -60,6 +60,7 @@ import Alert from '~/components/layout/Alert.vue'
 import Button from '~/components/layout/forms/Button.vue'
 import { toRefs } from 'vue'
 import GithubButton from '~/components/layout/GithubButton.vue'
+import logoUrl from '~/assets/images/logo.svg'
 
 const { auth, factory } = useCredentials()
 const { loading, error, handle } = useFormSubmit()
@@ -127,6 +128,6 @@ en:
 
 <style>
 .bg-bubbles {
-  background-image: url('/assets/images/bubbles.svg');
+  background-image: url('../assets/images/bubbles.svg');
 }
 </style>

@@ -108,13 +108,16 @@ export class AppliedFilters {
         }
       }
       const expressions = []
-      includedValues.length > 0 &&
+      if (includedValues.length > 0) {
         expressions.push(
           this.shouldIncludeAll.includes(facetName)
             ? field(facetName).hasAll(includedValues)
             : field(facetName).isIn(includedValues),
         )
-      excludedValues.length > 0 && expressions.push(field(facetName).isNotIn(excludedValues))
+      }
+      if (excludedValues.length > 0) {
+        expressions.push(field(facetName).isNotIn(excludedValues))
+      }
 
       return filterBuilder(...expressions)
     })

@@ -24,7 +24,7 @@
           no-border
           no-rounded
           @click="tenant.clearTenantToken()">
-          <Icon name="uil:times" class="size-6 text-primary-600" />
+          <Icon name="uil:times" class="text-primary-600 size-6" />
         </Button>
       </div>
 
@@ -55,9 +55,9 @@
       </button>
     </template>
     <template #title-actions>
-      <NuxtLink :to="`/indexes/${index.uid}/settings`" v-tippy="t('actions.goToSettings')">
+      <RouterLink :to="`/indexes/${index.uid}/settings`" v-tippy="t('actions.goToSettings')">
         <Icon name="heroicons-outline:cog" />
-      </NuxtLink>
+      </RouterLink>
     </template>
 
     <DocumentsEmptyState
@@ -82,7 +82,7 @@
         :last-page="lastPage"
         :previous-page="previousPage"
         :next-page="nextPage"
-        :nb-total-items="resultset.estimatedTotalHits"
+        :nb-total-items="resultset.estimatedTotalHits ?? 0"
         :processing-time-ms="resultset.processingTimeMs" />
     </template>
   </Layout>
@@ -91,25 +91,25 @@
 <script setup lang="ts">
 import { useFields, useIndexLocalSettings, useMeiliClient, useMultiTenancy, usePagination } from '~/composables'
 import { getFacetSearchableAttributePatterns, getFilterableAttributePatterns, tryOrThrow } from '~/utils'
-import { NuxtLink } from '#components'
+import { RouterLink } from 'vue-router'
 import SlideOver from '~/components/layout/SlideOver.vue'
 import FilterPanel from '~/components/documents/FilterPanel.vue'
 import { AppliedFilters } from '~/utils/applied-filters'
 import humanizeString from 'humanize-string'
 import SearchInput from '~/components/layout/forms/SearchInput.vue'
-import match from 'match-operator'
 import DocumentsAsCards from '~/components/documents/DocumentsAsCards.vue'
 import DocumentsAsTable from '~/components/documents/DocumentsAsTable.vue'
 import Button from '~/components/layout/forms/Button.vue'
 import DocumentsAsMap from '~/components/documents/DocumentsAsMap.vue'
-import { reactiveComputed } from '@vueuse/core'
+import type { Component } from 'vue'
+import type { SearchResponse } from 'meilisearch'
 
 const { t } = useI18n()
 const route = useRoute()
 const indexUid = route.params.indexUid
 const meili = useMeiliClient()
 const tenant = useMultiTenancy()
-const searchClient = reactiveComputed(() => (tenant.tenantToken ? useMeiliClient(tenant.tenantToken as string) : meili))
+const searchClient = computed(() => (tenant.tenantToken ? useMeiliClient(tenant.tenantToken as string) : meili))
 const { formatDate } = useDateFormatter()
 const index = await tryOrThrow(() => meili.getIndex(indexUid as string))
 const filterPanelOpen = ref(false)
@@ -134,7 +134,9 @@ const searchParams = reactive({
   offset,
   filter: computed(() => `${appliedFilters}`),
 })
-const resultset = ref(await tryOrThrow(() => searchClient.index(index.uid).search(null, searchParams)))
+const resultset = ref<SearchResponse<Record<string, unknown>>>(
+  await tryOrThrow(() => searchClient.value.index(index.uid).search<Record<string, unknown>>(null, searchParams)),
+)
 
 const hasGeoDocuments = computed(() => Object.keys(stats.fieldDistribution).includes('_geo'))
 const canFilterGeoDocuments = computed(() => filterableAttributes.includes('_geo'))
@@ -143,29 +145,29 @@ const self = reactive({
   totalItems,
   viewMode,
 })
-const MainComponent = computed(() =>
-  match(self.viewMode, [
-    ['documents', DocumentsAsCards],
-    ['table', DocumentsAsTable],
-    ['map', DocumentsAsMap],
-  ]),
-)
+const documentViews: Record<'documents' | 'table' | 'map', Component> = {
+  documents: DocumentsAsCards,
+  table: DocumentsAsTable,
+  map: DocumentsAsMap,
+}
+const MainComponent = computed(() => documentViews[self.viewMode as keyof typeof documentViews])
 watch(appliedSort, () => (searchParams.offset = 0))
 watch(appliedFilters, () => (searchParams.offset = 0))
 watch(itemsPerPage, () => (searchParams.offset = 0))
 watch(searchTerms, () => (searchParams.offset = 0))
 watch(
   searchParams,
-  async (searchParams) => (self.resultset = await searchClient.index(index.uid).search(null, searchParams)),
+  async (searchParams) =>
+    (self.resultset = await searchClient.value.index(index.uid).search<Record<string, unknown>>(null, searchParams)),
   { deep: true },
 )
-watch(resultset, () => (self.totalItems = self.resultset.estimatedTotalHits), {
+watch(resultset, () => (self.totalItems = self.resultset.estimatedTotalHits ?? 0), {
   deep: true,
   immediate: true,
 })
 const subtitle = computed(
   () =>
-    `${t('nbDocs', { nb: stats.numberOfDocuments })} - ${t('updatedAt', { updatedAt: formatDate(index.updatedAt, { displayTimeZone: true }) })}`,
+    `${t('nbDocs', { nb: stats.numberOfDocuments })} - ${t('updatedAt', { updatedAt: formatDate(index.updatedAt ?? null, { displayTimeZone: true }) })}`,
 )
 useHead({ title: `Documents - ${index.uid}` })
 </script>

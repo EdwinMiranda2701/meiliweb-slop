@@ -17,9 +17,9 @@ const props = withDefaults(defineProps<Props>(), {
 const classes = computed(() => {
   const classes = ['focus:outline-none', 'focus:ring-2', 'focus:ring-primary-600']
 
-  props.noBorder || classes.push('border')
-  props.noPadding || classes.push('px-2', 'py-1.5')
-  props.noRounded || classes.push('rounded-md')
+  if (!props.noBorder) classes.push('border')
+  if (!props.noPadding) classes.push('px-2', 'py-1.5')
+  if (!props.noRounded) classes.push('rounded-md')
 
   return classes
 })

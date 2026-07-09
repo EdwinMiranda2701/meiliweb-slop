@@ -3,7 +3,7 @@
     <h3 class="inline-flex w-full items-start justify-between">
       <span class="inline-flex flex-col gap-1">
         <span class="text-xl font-semibold">{{ t('title') }}</span>
-        <span class="text-sm italic text-gray-600">
+        <span class="text-sm text-gray-600 italic">
           {{ t('description') }}
         </span>
       </span>
@@ -19,7 +19,7 @@
         <dl class="flex-1 overflow-hidden">
           <template v-if="isBuiltIn(rule)">
             <dt class="font-medium capitalize">{{ rule }}</dt>
-            <dd class="text-xs italic text-gray-600">{{ t(`descriptions.${rule}`) }}</dd>
+            <dd class="text-xs text-gray-600 italic">{{ t(`descriptions.${rule}`) }}</dd>
           </template>
           <template v-else>
             <dt class="flex items-center gap-1.5 font-medium">
@@ -34,7 +34,7 @@
               </span>
               <span class="truncate">{{ parseCustomRule(rule)?.field }}</span>
             </dt>
-            <dd class="text-xs italic text-gray-600">{{ t('descriptions.custom') }}</dd>
+            <dd class="text-xs text-gray-600 italic">{{ t('descriptions.custom') }}</dd>
           </template>
         </dl>
         <div class="flex shrink-0 items-center gap-1">
@@ -96,7 +96,6 @@ import { resettableRef } from '~/utils'
 import Button from '~/components/layout/forms/Button.vue'
 import Buttons from '~/components/layout/forms/Buttons.vue'
 import type { Task } from 'meilisearch'
-import { useConfirmationDialog } from '#imports'
 import DocumentationLink from '~/components/layout/DocumentationLink.vue'
 
 const emit = defineEmits<{

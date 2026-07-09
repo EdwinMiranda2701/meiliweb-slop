@@ -1,4 +1,4 @@
-import { onBeforeRouteUpdate } from '#app'
+import { onBeforeRouteUpdate } from 'vue-router'
 
 import type { Ref } from 'vue'
 import { useConfirmationDialog, type ConfirmationDialogOptions } from '~/stores'

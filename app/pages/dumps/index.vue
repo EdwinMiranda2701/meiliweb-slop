@@ -22,26 +22,18 @@
       :items="tasks.results"
       :columns="[t('columns.dumpUid'), t('columns.status'), t('columns.date'), t('columns.duration')]">
       <template #default="{ index }">
-        <td>{{ tasks.results[index].details.dumpUid }}</td>
+        <td>{{ taskAt(index).details?.dumpUid }}</td>
         <td>
-          <Badge :theme="'succeeded' === tasks.results[index].status ? 'success' : 'danger'">
-            {{ tasks.results[index].status }}
+          <Badge :theme="'succeeded' === taskAt(index).status ? 'success' : 'danger'">
+            {{ taskAt(index).status }}
           </Badge>
         </td>
         <td class="whitespace-nowrap">
-          {{
-            formatDate(
-              match(tasks.results[index].status, [
-                [['enqueued', 'canceled'], [tasks.results[index].enqueuedAt]],
-                ['processing', [tasks.results[index].startedAt]],
-                [match.default, [tasks.results[index].finishedAt]],
-              ]),
-            )
-          }}
+          {{ formatDate(taskDate(taskAt(index))) }}
         </td>
         <td class="text-right">
-          <template v-if="tasks.results[index].duration">
-            {{ formatDuration(tasks.results[index].duration) }}
+          <template v-if="taskAt(index).duration">
+            {{ formatDuration(taskAt(index).duration!) }}
           </template>
         </td>
       </template>
@@ -50,7 +42,6 @@
 </template>
 
 <script setup lang="ts">
-import { tryOrThrow, useDateFormatter, useMeiliClient, useToasts } from '#imports'
 import { TOAST_FAILURE, TOAST_PLEASEWAIT, TOAST_SUCCESS } from '~/stores/toasts'
 import { useFormSubmit, useTask } from '~/composables'
 import Alert from '~/components/layout/Alert.vue'
@@ -58,7 +49,7 @@ import Table from '~/components/layout/tables/Table.vue'
 import Badge from '~/components/layout/Badge.vue'
 import DocumentationLink from '~/components/layout/DocumentationLink.vue'
 import Button from '~/components/layout/forms/Button.vue'
-import match from 'match-operator'
+import type { Task } from 'meilisearch'
 
 const { t } = useI18n()
 const meili = useMeiliClient()
@@ -75,6 +66,12 @@ const { loading, error, handle } = useFormSubmit({
 const self = reactive({
   tasks: await fetchTasks(),
 })
+const taskAt = (index: number) => self.tasks.results[index]!
+const taskDate = (task: Task) => {
+  if (['enqueued', 'canceled'].includes(task.status)) return task.enqueuedAt
+  if ('processing' === task.status) return task.startedAt ?? null
+  return task.finishedAt ?? null
+}
 const createDump = async () => {
   const toast = createToast({
     ...TOAST_PLEASEWAIT(t),

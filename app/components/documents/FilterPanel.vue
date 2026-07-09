@@ -16,16 +16,16 @@
           </Select>
         </div>
       </UniqueId>
-      <i18n-t v-else keypath="emptyStates.sort.text" tag="p" class="text-sm font-light italic text-gray-600">
+      <i18n-t v-else keypath="emptyStates.sort.text" tag="p" class="text-sm font-light text-gray-600 italic">
         <template v-slot:link>
-          <NuxtLink :to="`/indexes/${indexUid}/settings/sortable-attributes`" class="text-primary-600">
+          <RouterLink :to="`/indexes/${indexUid}/settings/sortable-attributes`" class="text-primary-600">
             {{ t('emptyStates.sort.link') }}
-          </NuxtLink>
+          </RouterLink>
         </template>
       </i18n-t>
     </section>
 
-    <section class="space-y-2 px-4 pb-6 pt-6 sm:px-6">
+    <section class="space-y-2 px-4 pt-6 pb-6 sm:px-6">
       <h3 class="text-md font-medium">{{ t('titles.facets') }}</h3>
       <UniqueId v-if="filterableAttributes.length > 0" v-slot="{ id }">
         <div class="space-y-1 text-sm">
@@ -39,16 +39,16 @@
             }" />
         </div>
       </UniqueId>
-      <i18n-t v-else keypath="emptyStates.facets.text" tag="p" class="text-sm font-light italic text-gray-600">
+      <i18n-t v-else keypath="emptyStates.facets.text" tag="p" class="text-sm font-light text-gray-600 italic">
         <template v-slot:link>
-          <NuxtLink :to="`/indexes/${indexUid}/settings/filterable-attributes`" class="text-primary-600">
+          <RouterLink :to="`/indexes/${indexUid}/settings/filterable-attributes`" class="text-primary-600">
             {{ t('emptyStates.facets.link') }}
-          </NuxtLink>
+          </RouterLink>
         </template>
       </i18n-t>
     </section>
 
-    <section v-if="(facets as NonNullable<string[]>).length > 0" class="space-y-6 pb-6 pt-6">
+    <section v-if="(facets as NonNullable<string[]>).length > 0" class="space-y-6 pt-6 pb-6">
       <h3 class="text-md px-4 font-medium sm:px-6">
         {{ t('titles.filters') }}
       </h3>

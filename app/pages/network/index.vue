@@ -73,20 +73,20 @@
               <span v-if="remoteEntries[i].searchApiKey" class="font-mono text-sm">
                 {{ remoteEntries[i].searchApiKey }}
               </span>
-              <span v-else class="text-sm font-light italic text-gray-500">{{ t('placeholders.none') }}</span>
+              <span v-else class="text-sm font-light text-gray-500 italic">{{ t('placeholders.none') }}</span>
             </td>
             <td>
               <span v-if="remoteEntries[i].writeApiKey" class="font-mono text-sm">
                 {{ remoteEntries[i].writeApiKey }}
               </span>
-              <span v-else class="text-sm font-light italic text-gray-500">{{ t('placeholders.none') }}</span>
+              <span v-else class="text-sm font-light text-gray-500 italic">{{ t('placeholders.none') }}</span>
             </td>
             <td>
               <div class="flex items-center gap-2">
                 <button
                   type="button"
                   v-tippy="t('actions.edit')"
-                  class="text-gray-500 hover:text-primary-600"
+                  class="hover:text-primary-600 text-gray-500"
                   @click="editRemote(remoteEntries[i])">
                   <Icon name="heroicons:pencil-square" />
                 </button>
@@ -128,14 +128,14 @@
               <div v-if="shardEntries[i].remotes.length" class="flex flex-wrap gap-1">
                 <Badge v-for="name in shardEntries[i].remotes" :key="name" theme="neutral">{{ name }}</Badge>
               </div>
-              <span v-else class="text-sm font-light italic text-gray-500">{{ t('placeholders.none') }}</span>
+              <span v-else class="text-sm font-light text-gray-500 italic">{{ t('placeholders.none') }}</span>
             </td>
             <td>
               <div class="flex items-center gap-2">
                 <button
                   type="button"
                   v-tippy="t('actions.edit')"
-                  class="text-gray-500 hover:text-primary-600"
+                  class="hover:text-primary-600 text-gray-500"
                   @click="editShard(shardEntries[i])">
                   <Icon name="heroicons:pencil-square" />
                 </button>
@@ -185,6 +185,7 @@ type ShardEntry = { name: string; remotes: string[] }
 
 const { t } = useI18n()
 const meili = useMeiliClient()
+const { credentials } = useCredentials()
 const { createToast } = useToasts()
 const { confirm } = useConfirmationDialog()
 const { openDialog } = usePromisifiedDialogs()
@@ -246,13 +247,21 @@ const shardEntries = computed<ShardEntry[]>(() =>
 const patch = async (update: NetworkUpdate, toastTitle: string) => {
   const toast = createToast({ ...TOAST_PLEASEWAIT(t), title: toastTitle })
   try {
-    const updated = (await meili.updateNetwork(update as never)) as unknown as Partial<NetworkTopology>
-    self.network = {
-      self: updated.self ?? null,
-      leader: updated.leader ?? null,
-      remotes: updated.remotes ?? {},
-      shards: updated.shards ?? {},
+    const response = await fetch(`${credentials!.baseUri.replace(/\/$/, '')}/network`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(credentials!.accessKey ? { Authorization: `Bearer ${credentials!.accessKey}` } : {}),
+      },
+      body: JSON.stringify(update),
+    })
+    if (!response.ok) {
+      throw new Error((await response.text()) || `Network update failed with HTTP ${response.status}`)
     }
+
+    const result = (await response.json()) as Partial<NetworkTopology> & { taskUid?: number }
+    if (result.taskUid != null) await meili.tasks.waitForTask(result.taskUid)
+    await load()
     toast.update({ ...TOAST_SUCCESS(t) })
   } catch (e) {
     toast.update({ ...TOAST_FAILURE(t) })

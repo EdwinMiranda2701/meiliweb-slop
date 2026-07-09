@@ -1,7 +1,7 @@
 <template>
   <Layout :title="t('title')">
     <template #actions>
-      <Button v-if="indexes.length > 0" :as="NuxtLink" to="/indexes/create" theme="primary" icon="pajamas:doc-new">
+      <Button v-if="indexes.length > 0" :as="RouterLink" to="/indexes/create" theme="primary" icon="pajamas:doc-new">
         {{ t('actions.create') }}
       </Button>
     </template>
@@ -26,18 +26,18 @@
           <th />
         </template>
         <template #default="{ item }">
-          <td class="whitespace-nowrap font-medium">
+          <td class="font-medium whitespace-nowrap">
             <span class="inline-flex items-center gap-2">
-              <NuxtLink
+              <RouterLink
                 :to="`/indexes/${item.uid}/documents`"
-                class="font-semibold hover:text-primary-700 hover:underline">
+                class="hover:text-primary-700 font-semibold hover:underline">
                 {{ item.uid }}
-              </NuxtLink>
+              </RouterLink>
               <Badge v-if="item.isIndexing" class="text-xs uppercase">
                 {{ t('labels.isIndexing') }}
               </Badge>
             </span>
-            <div class="absolute bottom-0 right-full h-px w-screen bg-gray-100" />
+            <div class="absolute right-full bottom-0 h-px w-screen bg-gray-100" />
             <div class="absolute bottom-0 left-0 h-px w-screen bg-gray-100" />
           </td>
           <td>
@@ -51,13 +51,13 @@
           <td class="text-right">
             <ContextualMenu>
               <MenuItem v-slot="{ active }">
-                <NuxtLink
+                <RouterLink
                   :to="`/indexes/${item.uid}/settings`"
                   class="flex w-full items-center justify-start gap-2 p-2"
                   :class="{ 'bg-gray-50': active }">
                   <Icon name="heroicons-outline:cog" class="size-5 opacity-70" />
                   <span>{{ t('actions.settings') }}</span>
-                </NuxtLink>
+                </RouterLink>
               </MenuItem>
               <MenuItem v-slot="{ active }">
                 <button
@@ -100,7 +100,7 @@
     <div v-else class="flex flex-col items-center justify-center gap-6 py-20">
       <p class="text-5xl font-light text-gray-700">🫠</p>
       <p class="text-2xl font-light text-gray-700">{{ t('emptyState') }}</p>
-      <Button :as="NuxtLink" :to="`/indexes/create`" theme="primary" icon="pajamas:doc-new">
+      <Button :as="RouterLink" :to="`/indexes/create`" theme="primary" icon="pajamas:doc-new">
         {{ t('actions.createExpanded') }}
       </Button>
     </div>
@@ -110,7 +110,7 @@
 <script setup lang="ts">
 import { tryOrThrow } from '~/utils'
 import { useDateFormatter, useIndexOperations, useMeiliClient, usePagination } from '~/composables'
-import { NuxtLink } from '#components'
+import { RouterLink } from 'vue-router'
 import ServerStats from '~/components/settings/ServerStats.vue'
 import Table from '~/components/layout/tables/Table.vue'
 import Badge from '~/components/layout/Badge.vue'
@@ -119,7 +119,6 @@ import ContextualMenu from '~/components/layout/ContextualMenu.vue'
 import { MenuItem } from '@headlessui/vue'
 import { Index } from 'meilisearch'
 import { promiseTimeout, whenever } from '@vueuse/core'
-import { navigateTo } from '#imports'
 import Pagination from '~/components/layout/pagination/Pagination.vue'
 import PageSize from '~/components/layout/pagination/PageSize.vue'
 

@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import Textarea from '~/components/layout/forms/Textarea.vue'
 
-const lines = defineModel<string[]>({ default: [] })
+const lines = defineModel<string[]>({ default: () => [] })
 const text = computed({
   get: () => lines.value.join('\n'),
   set: (value) =>

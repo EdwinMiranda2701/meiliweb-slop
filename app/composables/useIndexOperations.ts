@@ -27,11 +27,12 @@ export const useIndexOperations = () => {
       ...options,
     }
     const index = await meili.getIndex(indexUid)
-    newIndexUid =
+    const duplicateIndexUid =
       newIndexUid ??
       (await openDialog(IndexNamePromptModal, {
         indexUid: `${indexUid}-copy`,
       }))
+    newIndexUid = duplicateIndexUid as string
     onStart(newIndexUid)
     const toast = createToast({
       ...TOAST_PLEASEWAIT(t),
@@ -93,11 +94,12 @@ export const useIndexOperations = () => {
       ...options,
     }
     const index = await meili.getIndex(indexUid)
-    newIndexUid =
+    const renamedIndexUid =
       newIndexUid ??
       (await openDialog(IndexNamePromptModal, {
         indexUid: `${indexUid}-new`,
       }))
+    newIndexUid = renamedIndexUid as string
     onStart(newIndexUid)
     const toast = createToast({
       ...TOAST_PLEASEWAIT(t),
@@ -128,7 +130,10 @@ export const useIndexOperations = () => {
       throw new Error('Failed to rename index')
     }
 
-    task = await processTask(() => meili.swapIndexes([{ indexes: [indexUid, newIndexUid] }]), taskOptions)
+    task = await processTask(
+      () => meili.swapIndexes([{ indexes: [indexUid, newIndexUid], rename: false }]),
+      taskOptions,
+    )
     if (task.status === 'failed') {
       throw new Error('Failed to rename index')
     }

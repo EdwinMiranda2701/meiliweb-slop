@@ -1,49 +1,34 @@
-name: CI Workflow
+name: CI
 
 on:
   push:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  code-style:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
-      - name: Install NodeJS
-        uses: actions/setup-node@v3
-
-      - name: Cache dependencies
-        uses: actions/cache@v3
+      - name: Set up Vite+
+        uses: voidzero-dev/setup-vp@v1
         with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+          node-version: '24.18.0'
+          cache: true
 
       - name: Install dependencies
-        run: yarn install
+        run: vp install --frozen-lockfile
 
-      - name: Check code style
-        run: yarn lint
+      - name: Check formatting, linting, and types
+        run: vp check
 
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install NodeJS
-        uses: actions/setup-node@v3
-
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
-
-      - name: Install dependencies
-        run: yarn install
+      - name: Check Vue component types
+        run: vp run typecheck
 
       - name: Build application
-        run: yarn build
+        run: vp build

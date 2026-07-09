@@ -3,7 +3,7 @@
     <h3 class="inline-flex w-full items-start justify-between">
       <span class="inline-flex flex-col gap-1">
         <span class="text-xl font-semibold">{{ t('title') }}</span>
-        <span class="text-sm italic text-gray-600">
+        <span class="text-sm text-gray-600 italic">
           {{ t('description') }}
         </span>
       </span>
@@ -45,7 +45,6 @@ import EmbedderEntry from '~/components/settings/EmbedderEntry.vue'
 import Button from '~/components/layout/forms/Button.vue'
 import Buttons from '~/components/layout/forms/Buttons.vue'
 import type { Embedder, Embedders, RestEmbedder, Task } from 'meilisearch'
-import { useConfirmationDialog } from '#imports'
 import DocumentationLink from '~/components/layout/DocumentationLink.vue'
 
 const emit = defineEmits<{

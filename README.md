@@ -1,77 +1,72 @@
 # Meiliweb
 
-[Meiliweb](https://meiliweb.pages.dev) is a web-based administration panel
-that helps you store, organize and visualize data in your [Meilisearch](https://meilisearch.com) instances.
+[Meiliweb](https://meiliweb.pages.dev) is a browser-based administration panel for storing, organizing, and visualizing data in [Meilisearch](https://www.meilisearch.com/) instances.
 
 https://github.com/bpolaszek/meiliweb/assets/5569077/b4100e75-1e70-45dd-8c38-926a3dafafe1
 
 ## Features
 
-- 🛢️ Indexes management: create indexes, update settings
-- 🔍 Documents management: import documents, search, sort, filter
-- 🗝️ Access keys management: Create keys, generate tenant tokens (JWTs)
-- 📋 Tasks management
-- 🅿️ Dumps / snapshots management
+- Index and settings management
+- Document import, search, sorting, and filtering
+- API key and tenant-token management
+- Task monitoring
+- Dump and snapshot management
 
 ## Demo
 
-You can run Meilweb on your search instances, provided they expose appropriate CORS headers, on [https://meiliweb.pages.dev](https://meiliweb.pages.dev).
+You can use [the hosted app](https://meiliweb.pages.dev) with any Meilisearch instance that exposes suitable CORS headers.
 
-## Local usage
+## Development
 
-Meiliweb is a [Nuxt 3](https://nuxt.com/) single-page application that entirely runs on the client side.
+Meiliweb is a static [Vue](https://vuejs.org/) single-page application built with [Vite+](https://viteplus.dev/) and [Tailwind CSS](https://tailwindcss.com/). It has no application backend: the browser connects directly to the Meilisearch URL supplied by the user.
 
-If you have some basics with [Vue](https://vuejs.org/) and [TailwindCSS](https://tailwindcss.com/), you will easily
-figure out how this application has been structured.
-
-[Yarn](https://yarnpkg.com/) is required to install packages.
-
-Feel free to contribute!
-
-- [Discussions](https://github.com/bpolaszek/meiliweb/discussions): Ask questions, share ideas, suggest features
-- [Issues](https://github.com/bpolaszek/meiliweb/issues): Report bugs
-- [Pull requests](https://github.com/bpolaszek/meiliweb/pulls): Request changes
-
-### Installation
+The project pins Node.js 24.18.0 and pnpm 11.11.0. Install the `vp` CLI from the [Vite+ getting-started guide](https://viteplus.dev/guide/); Vite+ then provisions the pinned runtime and package manager automatically.
 
 ```bash
-git clone https://github.com/bpolaszek/meiliweb.git
-cd meiliweb
-yarn install
+git clone https://github.com/EdwinMiranda2701/meiliweb-slop.git
+cd meiliweb-slop
+vp install --frozen-lockfile
 ```
 
-### Launch dev server
+Start the development server:
 
 ```bash
-yarn dev
+vp dev
 ```
 
-### Build & preview
+Check formatting, linting, and types:
 
 ```bash
-yarn build && yarn preview
+vp check
+vp run typecheck
 ```
 
-### Docker build
+Apply safe formatting and lint fixes:
+
+```bash
+vp check --fix
+```
+
+Build and preview the production bundle:
+
+```bash
+vp build
+vp preview
+```
+
+## Docker
+
+The production image builds the static bundle with the pinned Vite+ toolchain, then serves it with nginx. Its nginx configuration falls back to `index.html` for client-side routes.
+
 ```bash
 docker build -t meiliweb .
+docker run --rm -p 3000:80 meiliweb
 ```
 
-### Docker run
-```bash
-docker run -p 3000:3000 -d meiliweb
-```
+The app is then available at <http://localhost:3000>.
 
-### Code style
+## Contributing
 
-#### Check
-
-```bash
-yarn lint
-```
-
-#### Fix
-
-```bash
-yarn format
-```
+- [Discussions](https://github.com/bpolaszek/meiliweb/discussions) for questions and ideas
+- [Issues](https://github.com/bpolaszek/meiliweb/issues) for bug reports
+- [Pull requests](https://github.com/bpolaszek/meiliweb/pulls) for proposed changes

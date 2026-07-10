@@ -1,17 +1,13 @@
 <template>
-  <div class="flow-root overflow-hidden">
-    <div class="mx-auto max-w-7xl">
-      <table class="w-full text-left">
-        <thead class="bg-white">
+  <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs">
+    <div :class="horizontalScroll ? 'overflow-x-auto' : ''">
+      <table :class="horizontalScroll ? 'w-max min-w-full' : 'w-full table-fixed'" class="text-left">
+        <thead class="border-b border-gray-200 bg-gray-50/80">
           <slot name="head">
-            <tr class="*:py-4 *:pr-3 *:text-left *:text-sm *:font-semibold *:text-gray-900">
+            <tr class="*:px-4 *:py-3 *:text-left *:text-xs *:font-semibold *:tracking-wide *:text-gray-600 *:uppercase">
               <slot name="columns">
                 <template v-for="(key, index) of columns ?? keys">
-                  <th v-if="0 === index" scope="col" class="relative isolate">
-                    {{ key }}
-                    <div class="absolute inset-y-0 right-full -z-10 w-screen border-b border-b-gray-200" />
-                    <div class="absolute inset-y-0 left-0 -z-10 w-screen border-b border-b-gray-200" />
-                  </th>
+                  <th v-if="0 === index" scope="col">{{ key }}</th>
                   <th v-else scope="col" class="whitespace-nowrap">
                     {{ key }}
                   </th>
@@ -20,16 +16,15 @@
             </tr>
           </slot>
         </thead>
-        <tbody>
-          <tr v-for="(item, rowIndex) of items" class="*:relative *:py-4 *:pr-3 *:text-sm *:text-gray-900">
+        <tbody class="divide-y divide-gray-100 bg-white">
+          <tr
+            v-for="(item, rowIndex) of items"
+            :key="rowIndex"
+            class="transition-colors *:px-4 *:py-3.5 *:align-top *:text-sm *:text-gray-700 hover:bg-gray-50/70">
             <slot :item="item" :index="rowIndex">
               <template v-for="(key, index) of keys">
-                <td v-if="0 === index" class="font-medium">
-                  {{ item[key] }}
-                  <div class="absolute right-full bottom-0 h-px w-screen bg-gray-100" />
-                  <div class="absolute bottom-0 left-0 h-px w-screen bg-gray-100" />
-                </td>
-                <td v-else class="px-3 py-4 text-sm text-gray-500">
+                <td v-if="0 === index" class="font-medium text-gray-900">{{ item[key] }}</td>
+                <td v-else>
                   {{ item[key] }}
                 </td>
               </template>
@@ -46,9 +41,10 @@ type Props = {
   items?: Array<any>
   keys?: Array<string>
   columns?: Array<string>
+  horizontalScroll?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), { items: () => [] })
+const props = withDefaults(defineProps<Props>(), { items: () => [], horizontalScroll: false })
 
 const self = reactive({
   keys: computed(() => props.keys ?? Object.keys(props.items[0] ?? {})),

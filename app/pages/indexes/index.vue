@@ -8,11 +8,7 @@
     <template v-if="indexes.length > 0">
       <Table :items="indexes" :keys="['uid', 'numberOfDocuments', 'primaryKey', 'createdAt', 'updatedAt']">
         <template #columns>
-          <th scope="col" class="relative isolate">
-            {{ t('columns.index') }}
-            <div class="absolute inset-y-0 right-full -z-10 w-screen border-b border-b-gray-200" />
-            <div class="absolute inset-y-0 left-0 -z-10 w-screen border-b border-b-gray-200" />
-          </th>
+          <th scope="col">{{ t('columns.index') }}</th>
           <th scope="col">
             {{ t('columns.primaryKey') }}
           </th>
@@ -26,19 +22,17 @@
           <th />
         </template>
         <template #default="{ item }">
-          <td class="font-medium whitespace-nowrap">
-            <span class="inline-flex items-center gap-2">
+          <td class="font-medium">
+            <span class="flex min-w-0 items-start gap-2">
               <RouterLink
                 :to="`/indexes/${item.uid}/documents`"
-                class="hover:text-primary-700 font-semibold hover:underline">
+                class="hover:text-primary-700 font-semibold break-all hover:underline">
                 {{ item.uid }}
               </RouterLink>
               <Badge v-if="item.isIndexing" class="text-xs uppercase">
                 {{ t('labels.isIndexing') }}
               </Badge>
             </span>
-            <div class="absolute right-full bottom-0 h-px w-screen bg-gray-100" />
-            <div class="absolute bottom-0 left-0 h-px w-screen bg-gray-100" />
           </td>
           <td>
             <Badge theme="neutral">{{ item.primaryKey }}</Badge>
@@ -97,13 +91,13 @@
       <ServerStats class="mt-6" />
     </template>
 
-    <div v-else class="flex flex-col items-center justify-center gap-6 py-20">
-      <p class="text-5xl font-light text-gray-700">🫠</p>
-      <p class="text-2xl font-light text-gray-700">{{ t('emptyState') }}</p>
-      <Button :as="RouterLink" :to="`/indexes/create`" theme="primary" icon="pajamas:doc-new">
-        {{ t('actions.createExpanded') }}
-      </Button>
-    </div>
+    <EmptyState v-else icon="heroicons:circle-stack" :title="t('emptyState')">
+      <template #actions>
+        <Button :as="RouterLink" :to="`/indexes/create`" theme="primary" icon="pajamas:doc-new">
+          {{ t('actions.createExpanded') }}
+        </Button>
+      </template>
+    </EmptyState>
   </Layout>
 </template>
 
@@ -116,6 +110,7 @@ import Table from '~/components/layout/tables/Table.vue'
 import Badge from '~/components/layout/Badge.vue'
 import Button from '~/components/layout/forms/Button.vue'
 import ContextualMenu from '~/components/layout/ContextualMenu.vue'
+import EmptyState from '~/components/layout/EmptyState.vue'
 import { MenuItem } from '@headlessui/vue'
 import { Index } from 'meilisearch'
 import { promiseTimeout, whenever } from '@vueuse/core'
@@ -160,14 +155,13 @@ whenever(
   { immediate: true },
 )
 
-const { duplicateIndex: doDuplicateIndex } = useIndexOperations()
+const { duplicateIndex: doDuplicateIndex, renameIndex: doRenameIndex } = useIndexOperations()
 const duplicateIndex = async (indexUid: string) => {
   const newIndexUid = await doDuplicateIndex(indexUid)
   await promiseTimeout(1000)
   await navigateTo(`/indexes/${newIndexUid}/documents`)
 }
 
-const { renameIndex: doRenameIndex } = useIndexOperations()
 const renameIndex = async (indexUid: string) => {
   const newIndexUid = await doRenameIndex(indexUid)
   await promiseTimeout(1000)

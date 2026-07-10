@@ -11,9 +11,9 @@
       </slot>
 
       <div class="relative">
-        <span class="inline-block w-full shadow-sm">
+        <span class="inline-block w-full">
           <div
-            class="focus-within:border-primary-500 focus-within:ring-primary-500 relative w-full cursor-default rounded-md border border-gray-300 bg-white py-2 pr-10 pl-2 text-left transition duration-150 ease-in-out focus-within:ring-1 focus-within:outline-none sm:text-sm sm:leading-5">
+            class="focus-within:border-primary-400 focus-within:ring-primary-500/20 relative min-h-10 w-full cursor-default rounded-lg border border-gray-300 bg-white py-2 pr-10 pl-3 text-left shadow-xs transition-colors focus-within:ring-2 focus-within:outline-none sm:text-sm sm:leading-5">
             <span class="flex flex-wrap gap-2">
               <span v-if="selectedKeys.length === 0" class="cursor-pointer p-0.5 empty:hidden" @click="focus">
                 <slot name="empty-state" />
@@ -22,7 +22,8 @@
               <template v-if="!hideTags">
                 <span v-for="item in selectedItems" :key="uniqueKey(item)">
                   <slot name="selected-items" v-bind="{ item, stringify, remove }">
-                    <span class="bg-primary-600 flex items-center gap-1 rounded-lg px-2 py-0.5 text-white">
+                    <span
+                      class="border-primary-200 bg-primary-50 text-primary-800 flex items-center gap-1 rounded-md border px-2 py-0.5">
                       <span>{{ stringify(item) }}</span>
                       <button role="button" @click="remove(item)">
                         <XMarkIcon class="h-4 w-4" />
@@ -53,11 +54,11 @@
           </div>
         </span>
 
-        <div v-show="open" class="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg">
+        <div v-show="open" class="absolute z-20 mt-1 w-full rounded-xl border border-gray-200 bg-white p-1 shadow-xl">
           <ComboboxOptions
             :static="!autoHide"
             v-if="availableItems.length > 0"
-            class="max-h-60 overflow-auto rounded-md py-1 text-base leading-6 shadow-xs focus:outline-none sm:text-sm sm:leading-5">
+            class="max-h-60 overflow-auto rounded-lg py-1 text-base leading-6 focus:outline-none sm:text-sm sm:leading-5">
             <ComboboxOption
               v-for="item of availableItems"
               :key="uniqueKey(item)"
@@ -67,8 +68,8 @@
               @click="() => autoHide && hideOptions()">
               <slot v-bind="{ item, active, selected, stringify }">
                 <li
-                  class="relative cursor-default py-2 pr-9 pl-3 select-none focus:outline-none"
-                  :class="active ? 'bg-primary-600 text-white' : 'text-gray-900'">
+                  class="relative cursor-default rounded-lg py-2 pr-9 pl-3 select-none focus:outline-none"
+                  :class="active ? 'bg-primary-50 text-primary-900' : 'text-gray-900'">
                   <span
                     class="block"
                     :class="{
@@ -82,7 +83,7 @@
                     v-if="selected"
                     class="absolute inset-y-0 right-0 flex items-center pr-4"
                     :class="{
-                      'text-white': active,
+                      'text-primary-700': active,
                       'text-primary-600': !active,
                     }">
                     <CheckIcon class="h-5 w-5" />

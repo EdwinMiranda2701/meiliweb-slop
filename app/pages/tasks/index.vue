@@ -34,7 +34,7 @@
             {{ taskAt(index).status }}
           </Badge>
         </td>
-        <td>
+        <td class="break-all">
           <RouterLink
             v-if="taskAt(index).indexUid"
             :to="`/indexes/${taskAt(index).indexUid}/documents`"
@@ -42,7 +42,7 @@
             {{ taskAt(index).indexUid }}
           </RouterLink>
         </td>
-        <td>
+        <td class="max-w-xl break-all">
           <UseTreeRendering v-if="'failed' === taskAt(index).status" :value="taskAt(index).error" />
           <span v-else-if="'documentAdditionOrUpdate' === taskAt(index).type">
             {{

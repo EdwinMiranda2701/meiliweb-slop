@@ -33,6 +33,7 @@ declare module 'vue' {
     DocumentsFooter: typeof import('./components/documents/DocumentsFooter.vue')['default']
     DuplicateIndexEditor: typeof import('./components/settings/DuplicateIndexEditor.vue')['default']
     EmbedderEntry: typeof import('./components/settings/EmbedderEntry.vue')['default']
+    EmptyState: typeof import('./components/layout/EmptyState.vue')['default']
     FacetSearchEditor: typeof import('./components/settings/FacetSearchEditor.vue')['default']
     FilterPanel: typeof import('./components/documents/FilterPanel.vue')['default']
     GithubButton: typeof import('./components/layout/GithubButton.vue')['default']

@@ -10,7 +10,7 @@
 
     <div v-else class="space-y-8">
       <!-- Identity: self & leader -->
-      <section class="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+      <section class="rounded-xl border border-gray-200 bg-white p-5 shadow-xs">
         <h2 class="mb-1 text-lg font-semibold text-gray-900">{{ t('identity.title') }}</h2>
         <p class="mb-4 text-sm text-gray-500">{{ t('identity.subtitle') }}</p>
         <form class="flex flex-col gap-4 sm:flex-row sm:items-end" @submit.prevent="saveIdentity()">
@@ -45,7 +45,7 @@
       </section>
 
       <!-- Remotes -->
-      <section class="space-y-3">
+      <section class="space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-xs">
         <header class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-semibold text-gray-900">{{ t('remotes.title') }}</h2>
@@ -70,13 +70,13 @@
             <td class="font-medium">{{ remoteEntries[i].name }}</td>
             <td class="break-all">{{ remoteEntries[i].url }}</td>
             <td>
-              <span v-if="remoteEntries[i].searchApiKey" class="font-mono text-sm">
+              <span v-if="remoteEntries[i].searchApiKey" class="font-mono text-sm break-all">
                 {{ remoteEntries[i].searchApiKey }}
               </span>
               <span v-else class="text-sm font-light text-gray-500 italic">{{ t('placeholders.none') }}</span>
             </td>
             <td>
-              <span v-if="remoteEntries[i].writeApiKey" class="font-mono text-sm">
+              <span v-if="remoteEntries[i].writeApiKey" class="font-mono text-sm break-all">
                 {{ remoteEntries[i].writeApiKey }}
               </span>
               <span v-else class="text-sm font-light text-gray-500 italic">{{ t('placeholders.none') }}</span>
@@ -101,13 +101,11 @@
             </td>
           </template>
         </Table>
-        <p v-else class="rounded-lg border border-dashed border-gray-300 px-4 py-6 text-center text-sm text-gray-500">
-          {{ t('remotes.empty') }}
-        </p>
+        <EmptyState v-else icon="heroicons:globe-alt" :title="t('remotes.empty')" />
       </section>
 
       <!-- Shards -->
-      <section class="space-y-3">
+      <section class="space-y-4 rounded-xl border border-gray-200 bg-white p-5 shadow-xs">
         <header class="flex items-center justify-between">
           <div>
             <h2 class="text-lg font-semibold text-gray-900">{{ t('shards.title') }}</h2>
@@ -150,9 +148,7 @@
             </td>
           </template>
         </Table>
-        <p v-else class="rounded-lg border border-dashed border-gray-300 px-4 py-6 text-center text-sm text-gray-500">
-          {{ t('shards.empty') }}
-        </p>
+        <EmptyState v-else icon="heroicons:squares-2x2" :title="t('shards.empty')" />
       </section>
     </div>
   </Layout>
@@ -163,6 +159,7 @@ import Layout from '~/components/layout/Layout.vue'
 import Alert from '~/components/layout/Alert.vue'
 import Badge from '~/components/layout/Badge.vue'
 import DocumentationLink from '~/components/layout/DocumentationLink.vue'
+import EmptyState from '~/components/layout/EmptyState.vue'
 import Button from '~/components/layout/forms/Button.vue'
 import Label from '~/components/layout/forms/Label.vue'
 import Table from '~/components/layout/tables/Table.vue'

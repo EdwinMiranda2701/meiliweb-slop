@@ -1,6 +1,6 @@
 <template>
   <main class="grid h-full grid-cols-12 overflow-hidden">
-    <div class="col-span-3 h-full space-y-6 overflow-x-hidden overflow-y-auto px-4 pb-4">
+    <div class="col-span-4 h-full space-y-6 overflow-auto px-4 pb-4 xl:col-span-3">
       <DocumentCard
         v-for="document of documents"
         :indexUid="indexUid"
@@ -13,7 +13,7 @@
     <MapContainer
       :center="center"
       :zoom="2"
-      class="col-span-9 size-full"
+      class="col-span-8 size-full xl:col-span-9"
       style="height: 100%; z-index: 0"
       @zoomend="onZoomEnd">
       <OpenStreetMap>

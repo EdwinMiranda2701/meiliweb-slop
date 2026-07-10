@@ -1,23 +1,23 @@
 <template>
-  <div class="flex h-full flex-col overflow-hidden">
-    <LayoutTopNavigation />
+  <div class="flex h-full min-w-[1024px] flex-col overflow-hidden bg-gray-50 text-gray-900">
+    <TopNavigation />
     <div class="relative grow">
       <div class="absolute inset-0 flex flex-col">
-        <section class="static top-0 mx-auto w-full max-w-7xl bg-white px-4 py-4 sm:px-6 lg:px-8">
+        <section class="static top-0 mx-auto w-full max-w-7xl px-8 pt-7 pb-5">
           <slot name="header" :title="title" :subtitle="subtitle">
-            <LayoutPageHeader :title="title" :subtitle="subtitle">
+            <PageHeader :title="title" :subtitle="subtitle">
               <template #title-actions>
                 <slot name="title-actions" />
               </template>
               <template #actions>
                 <slot name="actions" />
               </template>
-            </LayoutPageHeader>
+            </PageHeader>
           </slot>
         </section>
         <div class="relative grow overflow-hidden">
           <div class="absolute inset-0 overflow-auto">
-            <section class="mx-auto h-full w-full max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+            <section class="mx-auto h-full w-full max-w-7xl px-8 py-5">
               <slot />
             </section>
           </div>

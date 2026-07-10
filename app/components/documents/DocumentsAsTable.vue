@@ -1,6 +1,6 @@
 <template>
   <main>
-    <Table :items="documents" :keys="fields" class="overflow-x-auto">
+    <Table :items="documents" :keys="fields" horizontal-scroll>
       <template #default="{ index: rowIndex }">
         <td v-for="field of fields">
           <a v-if="looksLikeAPictureUrl(documents[rowIndex][field])" :href="documents[rowIndex][field]" target="_blank">

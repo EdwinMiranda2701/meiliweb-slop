@@ -1,12 +1,8 @@
 <template>
-  <div class="flex flex-col items-center justify-center gap-6 py-20">
-    <template v-if="requestHasFilters">
-      <p class="text-5xl font-light text-gray-700">🤷🏻</p>
-      <p class="text-2xl font-light text-gray-700">{{ t('emptyResults') }}</p>
-    </template>
-    <template v-else>
-      <p class="text-5xl font-light text-gray-700">🧐</p>
-      <p class="text-2xl font-light text-gray-700">{{ t('emptyIndex') }}</p>
+  <EmptyState
+    :icon="requestHasFilters ? 'heroicons:magnifying-glass' : 'heroicons:document-magnifying-glass'"
+    :title="requestHasFilters ? t('emptyResults') : t('emptyIndex')">
+    <template v-if="!requestHasFilters" #actions>
       <Button
         :as="RouterLink"
         :to="`/indexes/${indexUid}/settings/import-documents`"
@@ -15,12 +11,13 @@
         {{ t('actions.importDocuments') }}
       </Button>
     </template>
-  </div>
+  </EmptyState>
 </template>
 
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 import Button from '~/components/layout/forms/Button.vue'
+import EmptyState from '~/components/layout/EmptyState.vue'
 import { useI18n } from 'vue-i18n'
 
 type Props = {

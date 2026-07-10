@@ -1,5 +1,8 @@
 <template>
-  <Component :is="as" class="rounded-lg px-1.5 py-0.5" :class="classes">
+  <Component
+    :is="as"
+    class="inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium"
+    :class="classes">
     <slot />
   </Component>
 </template>
@@ -19,10 +22,10 @@ const props = withDefaults(defineProps<Props>(), {
 })
 const classes = computed(() =>
   match(props.theme, [
-    ['primary', ['bg-primary-800', 'text-white']],
-    ['success', ['bg-green-600', 'text-white']],
-    ['danger', ['bg-red-600', 'text-white']],
-    ['neutral', ['border border-gray-200']],
+    ['primary', ['border-primary-200', 'bg-primary-50', 'text-primary-800']],
+    ['success', ['border-green-200', 'bg-green-50', 'text-green-700']],
+    ['danger', ['border-red-200', 'bg-red-50', 'text-red-700']],
+    ['neutral', ['border-gray-200', 'bg-gray-50', 'text-gray-700']],
   ]),
 )
 </script>

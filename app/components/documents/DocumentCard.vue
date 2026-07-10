@@ -1,12 +1,12 @@
 <template>
   <article>
-    <div class="flex w-full items-start justify-between gap-4">
+    <div class="flex w-full min-w-0 items-start justify-between gap-4">
       <div v-if="picture" class="hidden @3xl:block">
         <img :src="picture" :alt="name" class="max-h-80 max-w-80 shrink rounded-md object-cover object-top shadow-md" />
       </div>
-      <div class="w-full">
+      <div class="min-w-0 flex-1">
         <header class="mb-2 flex items-center justify-between border-b border-b-gray-300 pb-2">
-          <h2 class="flex gap-2 text-lg font-medium">
+          <h2 class="flex min-w-0 gap-2 text-lg font-medium">
             <span v-if="nameField === primaryKey">#</span>
             <span class="line-clamp-1 text-gray-700">{{ name }}</span>
           </h2>
@@ -18,7 +18,7 @@
               :title="primaryKey as string">
               {{ primaryKey }}
             </dt>
-            <dd class="table-cell text-justify text-sm font-semibold text-gray-800 @xl:p-1">
+            <dd class="table-cell text-justify text-sm font-semibold break-words text-gray-800 @xl:p-1">
               <ValueRenderer
                 :index-uid="indexUid"
                 :field="primaryKey as string"
@@ -28,10 +28,10 @@
           </div>
           <template v-for="key of fieldsWithoutPrimaryKey">
             <div class="@xl:table-row">
-              <dt class="table-cell text-sm font-light text-gray-400 uppercase @xl:p-1" :title="key">
+              <dt class="table-cell text-sm font-light break-words text-gray-400 uppercase @xl:p-1" :title="key">
                 {{ key }}
               </dt>
-              <dd class="text-justify text-sm @xl:table-cell @xl:p-1">
+              <dd class="text-justify text-sm break-words @xl:table-cell @xl:p-1">
                 <ValueRenderer
                   :index-uid="indexUid"
                   :field="key"

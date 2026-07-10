@@ -23,34 +23,34 @@
       <template #default="{ index: i }">
         <td>
           <div class="flex flex-col">
-            <span class="inline-flex items-center gap-1 whitespace-nowrap">
-              {{ keys.results[i].name }}
+            <span class="flex min-w-0 items-start gap-1">
+              <span class="break-all">{{ keys.results[i].name }}</span>
               <ClipboardButton
                 :source="keys.results[i].key"
                 :copy-text="t('hints.copySecretKey')"
                 class="shrink-0 grow-0" />
             </span>
-            <span v-tippy="keys.results[i].description" class="line-clamp-1 text-sm font-light text-gray-600">
+            <span v-tippy="keys.results[i].description" class="max-w-md text-sm font-light break-words text-gray-600">
               {{ keys.results[i].description }}
             </span>
           </div>
         </td>
         <td>
           <div class="flex flex-col">
-            <span class="inline-flex items-center gap-1 whitespace-nowrap">
-              {{ keys.results[i].uid }}
+            <span class="flex min-w-0 items-start gap-1">
+              <span class="break-all">{{ keys.results[i].uid }}</span>
               <ClipboardButton :source="keys.results[i].uid" class="shrink-0 grow-0" />
             </span>
           </div>
         </td>
         <td>
           <ul>
-            <li v-for="action of keys.results[i].actions">{{ action }}</li>
+            <li v-for="action of keys.results[i].actions" class="break-all">{{ action }}</li>
           </ul>
         </td>
         <td>
           <ul>
-            <li v-for="index of keys.results[i].indexes">{{ index }}</li>
+            <li v-for="index of keys.results[i].indexes" class="break-all">{{ index }}</li>
           </ul>
         </td>
         <td class="whitespace-nowrap">

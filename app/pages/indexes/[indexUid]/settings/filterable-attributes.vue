@@ -13,7 +13,7 @@
       {{ t('notice.text') }}
     </Alert>
 
-    <div class="overflow-hidden rounded-lg border border-gray-200">
+    <div class="overflow-hidden rounded-xl border border-gray-200">
       <table class="min-w-full divide-y divide-gray-200 text-sm">
         <thead class="bg-gray-50">
           <tr>

@@ -1,11 +1,13 @@
 <template>
   <div class="grid justify-items-stretch gap-6 md:grid-cols-3">
     <DefineCard v-slot="{ $slots, title, icon }">
-      <section class="flex gap-6 rounded-xl border border-gray-300 p-4">
-        <Icon :name="icon" class="text-primary-700 size-14" />
-        <div class="space-y-4">
-          <h2 class="block text-lg font-light text-gray-600">{{ title }}</h2>
-          <span class="text-primary-700 font-bold tracking-wide">
+      <section class="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-xs">
+        <span class="bg-primary-50 text-primary-700 flex size-11 shrink-0 items-center justify-center rounded-xl">
+          <Icon :name="icon" class="size-6" />
+        </span>
+        <div class="min-w-0 space-y-1">
+          <h2 class="block text-sm font-medium text-gray-500">{{ title }}</h2>
+          <span class="block font-semibold tracking-tight break-words text-gray-900">
             <Component :is="$slots.default" />
           </span>
         </div>

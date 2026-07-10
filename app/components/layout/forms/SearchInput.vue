@@ -7,7 +7,7 @@
       v-model="value"
       name="search"
       autocomplete="off"
-      class="focus:ring-primary-500 block w-full rounded-lg border-0 bg-white py-1 pr-3 pl-10 text-gray-900 ring-1 ring-gray-300 ring-inset placeholder:text-gray-400 focus:ring-2 focus:outline-none focus:ring-inset sm:text-sm sm:leading-6"
+      class="form-input block h-10 w-full pr-3 pl-10 text-sm"
       :placeholder="t('placeholder')"
       type="search"
       v-bind="inputAttrs" />

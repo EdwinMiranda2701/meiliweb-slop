@@ -1,9 +1,9 @@
 <template>
   <ErrorPage v-if="appError" :error="appError" />
   <template v-else>
-    <div class="relative h-dvh">
+    <div class="relative h-dvh bg-gray-50" :class="credentials ? 'min-w-[1024px]' : ''">
       <RouterView v-slot="{ Component }">
-        <Suspense>
+        <Suspense v-if="Component">
           <component :is="Component" :key="pageKey" />
         </Suspense>
       </RouterView>
@@ -45,7 +45,7 @@ onErrorCaptured((error) => {
 
 useHead({
   htmlAttrs: {
-    class: 'h-dvh',
+    class: 'h-dvh bg-gray-50',
   },
   bodyAttrs: {
     class: 'h-full',
@@ -85,15 +85,23 @@ en:
 
 @layer components {
   .form-input,
+  .form-select,
+  .form-textarea,
   .form-checkbox {
-    @apply focus:border-primary-300 focus:ring-primary-600 rounded-md border-gray-300 shadow-sm focus:ring-2 focus:outline-none;
+    @apply focus:border-primary-400 focus:ring-primary-500/20 border-gray-300 bg-white text-gray-900 shadow-xs transition-colors placeholder:text-gray-400 focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-100 disabled:text-gray-500;
+  }
+  .form-input,
+  .form-select,
+  .form-textarea {
+    @apply min-h-10 rounded-lg;
   }
   .form-checkbox {
-    @apply text-primary-600 rounded-sm;
+    @apply text-primary-600 size-4 rounded-sm;
   }
 }
 
 body {
+  min-width: min-content;
   font-family: 'DM Sans Variable', sans-serif;
 }
 </style>

@@ -19,14 +19,16 @@
       :columns="[t('columns.url'), t('columns.uuid'), t('columns.headers'), t('columns.actions')]">
       <template #default="{ index: i }">
         <td>
-          <span class="inline-flex items-center gap-2">
-            <span class="line-clamp-1 max-w-md break-all">{{ webhooks[i].url }}</span>
-            <Badge v-if="!webhooks[i].isEditable" theme="neutral">{{ t('badges.readOnly') }}</Badge>
+          <span class="flex min-w-0 items-start gap-2">
+            <span class="max-w-xl break-all whitespace-normal">{{ webhooks[i].url }}</span>
+            <Badge v-if="!webhooks[i].isEditable" theme="neutral" class="shrink-0">
+              {{ t('badges.readOnly') }}
+            </Badge>
           </span>
         </td>
         <td>
-          <span class="inline-flex items-center gap-1 font-mono text-sm whitespace-nowrap">
-            {{ webhooks[i].uuid }}
+          <span class="flex min-w-0 items-start gap-1 font-mono text-sm">
+            <span class="break-all">{{ webhooks[i].uuid }}</span>
             <ClipboardButton :source="webhooks[i].uuid" class="shrink-0 grow-0" />
           </span>
         </td>

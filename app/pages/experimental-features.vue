@@ -8,8 +8,8 @@
       {{ t('errors.unavailable.text') }}
     </Alert>
 
-    <ul v-else class="divide-y divide-gray-100 rounded-lg border border-gray-200 bg-white shadow-sm">
-      <li v-for="feature in sortedFeatures" :key="feature" class="flex items-center justify-between gap-6 px-4 py-4">
+    <ul v-else class="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white shadow-xs">
+      <li v-for="feature in sortedFeatures" :key="feature" class="flex items-center justify-between gap-6 px-5 py-4">
         <div class="flex flex-col gap-1">
           <span class="font-medium text-gray-900">{{ labelFor(feature) }}</span>
           <span v-if="descriptionFor(feature)" class="text-sm text-gray-500">{{ descriptionFor(feature) }}</span>
@@ -36,7 +36,7 @@ import type { RuntimeTogglableFeatures } from 'meilisearch'
 // instance may report features unknown to our TS types and i18n catalogue.
 type FeatureMap = Record<string, boolean>
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 const meili = useMeiliClient()
 const { createToast } = useToasts()
 
@@ -80,12 +80,9 @@ const sortedFeatures = computed(() => {
   return [...known, ...unknown]
 })
 
-// A missing translation resolves back to its own key, which we treat as "unknown feature":
-// labels fall back to a humanized key, descriptions are simply omitted.
-const translate = (key: string) => {
-  const value = t(key)
-  return value === key ? null : value
-}
+// Unknown features can be returned by newer Meilisearch versions. Check before translating
+// so vue-i18n does not warn while we fall back to a humanized label.
+const translate = (key: string) => (te(key) ? t(key) : null)
 const labelFor = (key: string) => translate(`features.${key}.label`) ?? humanize(key)
 const descriptionFor = (key: string) => translate(`features.${key}.description`) ?? ''
 

@@ -15,7 +15,7 @@ const DEFAULT_DUPLICATE_INDEX_OPTIONS: DuplicateIndexOptions = {
 }
 
 export const useIndexOperations = () => {
-  const { t } = useI18n()
+  const { t } = useI18n({ useScope: 'global' })
   const meili = useMeiliClient()
   const { openDialog } = usePromisifiedDialogs()
   const { createToast } = useToasts()

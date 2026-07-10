@@ -60,6 +60,9 @@ export default defineConfig({
   ]),
   resolve: {
     alias: {
+      'v3-infinite-loading': fileURLToPath(
+        new URL('./node_modules/v3-infinite-loading/lib/v3-infinite-loading.es.js', import.meta.url),
+      ),
       '~': fileURLToPath(new URL('./app', import.meta.url)),
       '@': fileURLToPath(new URL('./app', import.meta.url)),
     },

@@ -74,7 +74,7 @@ const KNOWN_ORDER = [
 ]
 
 const sortedFeatures = computed(() => {
-  const keys = Object.keys(self.features)
+  const keys = Object.keys(self.features ?? {})
   const known = KNOWN_ORDER.filter((key) => keys.includes(key))
   const unknown = keys.filter((key) => !KNOWN_ORDER.includes(key)).sort()
   return [...known, ...unknown]

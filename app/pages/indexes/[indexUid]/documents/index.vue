@@ -122,7 +122,8 @@ const [primaryKey, rawFilterableAttributes, sortableAttributes, stats] = await P
 const filterableAttributes = getFilterableAttributePatterns(rawFilterableAttributes)
 const facetSearchableAttributes = getFacetSearchableAttributePatterns(rawFilterableAttributes)
 
-const { fields } = useFields(primaryKey, Object.keys(stats.fieldDistribution))
+const fieldDistribution = stats.fieldDistribution ?? {}
+const { fields } = useFields(primaryKey, Object.keys(fieldDistribution))
 const { appliedSort, facets, itemsPerPage, viewMode } = useIndexLocalSettings(index.uid)
 const appliedFilters = reactive(new AppliedFilters()) as AppliedFilters
 const searchTerms = ref('')
@@ -138,7 +139,7 @@ const resultset = ref<SearchResponse<Record<string, unknown>>>(
   await tryOrThrow(() => searchClient.value.index(index.uid).search<Record<string, unknown>>(null, searchParams)),
 )
 
-const hasGeoDocuments = computed(() => Object.keys(stats.fieldDistribution).includes('_geo'))
+const hasGeoDocuments = computed(() => Object.keys(fieldDistribution).includes('_geo'))
 const canFilterGeoDocuments = computed(() => filterableAttributes.includes('_geo'))
 const self = reactive({
   resultset,

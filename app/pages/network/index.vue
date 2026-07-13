@@ -230,11 +230,11 @@ const identityChanged = computed(
 )
 
 const remoteEntries = computed<RemoteEntry[]>(() =>
-  Object.entries(self.network.remotes).map(([name, remote]) => ({ name, ...remote })),
+  Object.entries(self.network.remotes ?? {}).map(([name, remote]) => ({ name, ...remote })),
 )
-const remoteNames = computed(() => Object.keys(self.network.remotes))
+const remoteNames = computed(() => Object.keys(self.network.remotes ?? {}))
 const shardEntries = computed<ShardEntry[]>(() =>
-  Object.entries(self.network.shards).map(([name, shard]) => ({ name, remotes: shard.remotes ?? [] })),
+  Object.entries(self.network.shards ?? {}).map(([name, shard]) => ({ name, remotes: shard.remotes ?? [] })),
 )
 
 /**

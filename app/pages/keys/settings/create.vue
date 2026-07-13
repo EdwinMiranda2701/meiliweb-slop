@@ -1,180 +1,182 @@
 <template>
-  <form class="space-y-4" @reset.prevent="reset()" @submit.prevent="submit()">
-    <h3 class="inline-flex w-full items-center justify-between text-xl font-semibold">
-      {{ t('title') }}
+  <Layout :title="t('title')" :subtitle="t('subtitle')">
+    <template #title-actions>
       <DocumentationLink href="https://www.meilisearch.com/docs/learn/security/managing_api_keys" />
-    </h3>
+    </template>
+    <template #actions>
+      <Button :as="RouterLink" to="/keys" theme="secondary" icon="heroicons:arrow-left">
+        {{ t('actions.back') }}
+      </Button>
+    </template>
 
-    <Alert v-if="error" dismissable theme="danger" @close="error = null">
-      {{ error }}
-    </Alert>
-
-    <Alert v-if="createdKey" dismissable theme="success" :title="t('alerts.success.title')" @close="createdKey = null">
-      <dl class="flex items-center gap-2">
-        <dt class="font-medium">{{ t('alerts.success.uid') }}:</dt>
-        <dd>
-          {{ createdKey.uid }}
-          <ClipboardButton :source="createdKey.uid" />
-        </dd>
-      </dl>
-      <dl class="flex items-center gap-2">
-        <dt class="font-medium">{{ t('alerts.success.secretKey') }}:</dt>
-        <dd>
-          {{ createdKey.key }}
-          <ClipboardButton :source="createdKey.key" />
-        </dd>
-      </dl>
-    </Alert>
-
-    <UniqueId as="section" v-slot="{ id }" class="space-y-1">
-      <header class="flex items-center justify-between">
-        <Label :for="id">{{ t('labels.indexes') }}</Label>
-        <div>
-          <label class="inline-flex cursor-pointer items-center gap-2">
-            <span class="text-sm font-light text-gray-600 italic">
-              {{ t('labels.allIndexes') }}
-            </span>
-            <input type="checkbox" v-model="key.indexes" value="*" class="form-checkbox" />
-          </label>
+    <div v-if="createdKey" class="mx-auto max-w-3xl space-y-5">
+      <Alert theme="success" :title="t('alerts.success.title')">
+        {{ t('alerts.success.description') }}
+      </Alert>
+      <section class="space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-xs">
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="font-semibold text-gray-900">{{ t('alerts.success.secretKey') }}</h2>
+            <ClipboardButton :source="createdKey.key" :copy-text="t('actions.copyKey')" class="size-5 shrink-0" />
+          </div>
+          <p class="rounded-lg bg-gray-50 p-3 font-mono text-sm break-all text-gray-700">{{ createdKey.key }}</p>
         </div>
-      </header>
-      <MultiCombobox
-        autofocus
-        :items="indexes"
-        v-model="key.indexes"
-        class="w-full"
-        :input-attrs="{ id, disabled: key.indexes.includes('*') }" />
-    </UniqueId>
-
-    <UniqueId as="section" v-slot="{ id }" class="space-y-1">
-      <DefineActionCheckbox v-slot="{ action }">
-        <UniqueId
-          v-tippy="t(`keyActions.${action}.description`)"
-          as="div"
-          class="flex items-center gap-1"
-          v-slot="{ id }">
-          <Label :for="id" class="cursor-pointer">
-            <Badge :theme="key.actions.includes(action) ? 'success' : 'neutral'">
-              {{ t(`keyActions.${action}.label`) }}
-            </Badge>
-          </Label>
-          <input :id :value="action" v-model="key.actions" type="checkbox" class="hidden" />
-        </UniqueId>
-      </DefineActionCheckbox>
-
-      <Label :for="id">{{ t('labels.actions') }}</Label>
-      <dl class="grid grid-cols-6 gap-4 text-sm">
-        <dt class="font-light">
-          <button type="button" @click="toggleActions(['search'])">
-            {{ t('labels.action.search') }}
-          </button>
-        </dt>
-        <dd class="col-span-5 flex flex-wrap items-center gap-4">
-          <ActionCheckbox action="search" />
-        </dd>
-
-        <dt class="font-light">
-          <button type="button" @click="toggleActions(DOCUMENT_ACTIONS)">
-            {{ t('labels.action.documents') }}
-          </button>
-        </dt>
-        <dd class="col-span-5 flex flex-wrap items-center gap-4">
-          <template v-for="action of DOCUMENT_ACTIONS" :key="action">
-            <ActionCheckbox :action />
-          </template>
-        </dd>
-
-        <dt class="font-light">
-          <button type="button" @click="toggleActions(INDEX_ACTIONS)">
-            {{ t('labels.action.indexes') }}
-          </button>
-        </dt>
-        <dd class="col-span-5 flex flex-wrap items-center gap-4">
-          <template v-for="action of INDEX_ACTIONS" :key="action">
-            <ActionCheckbox :action />
-          </template>
-        </dd>
-
-        <dt class="font-light">
-          <button type="button" @click="toggleActions(TASK_ACTIONS)">
-            {{ t('labels.action.tasks') }}
-          </button>
-        </dt>
-        <dd class="col-span-5 flex flex-wrap items-center gap-4">
-          <template v-for="action of TASK_ACTIONS" :key="action">
-            <ActionCheckbox :action />
-          </template>
-        </dd>
-
-        <dt class="font-light">
-          <button type="button" @click="toggleActions(KEY_ACTIONS)">
-            {{ t('labels.action.keys') }}
-          </button>
-        </dt>
-        <dd class="col-span-5 flex flex-wrap items-center gap-4">
-          <template v-for="action of KEY_ACTIONS" :key="action">
-            <ActionCheckbox :action />
-          </template>
-        </dd>
-
-        <dt class="font-light">
-          <button type="button" @click="toggleActions(SETTINGS_ACTIONS)">
-            {{ t('labels.action.settings') }}
-          </button>
-        </dt>
-        <dd class="col-span-5 flex flex-wrap items-center gap-4">
-          <template v-for="action of SETTINGS_ACTIONS" :key="action">
-            <ActionCheckbox :action />
-          </template>
-        </dd>
-
-        <dt class="font-light">
-          <button type="button" @click="toggleActions(MISC_ACTIONS)">
-            {{ t('labels.action.misc') }}
-          </button>
-        </dt>
-        <dd class="col-span-5 flex flex-wrap items-center gap-4">
-          <template v-for="action of MISC_ACTIONS" :key="action">
-            <ActionCheckbox :action />
-          </template>
-        </dd>
-      </dl>
-    </UniqueId>
-
-    <UniqueId as="section" v-slot="{ id }" class="space-y-1">
-      <Label :for="id">{{ t('labels.name') }}</Label>
-      <input v-model="key.name" class="form-input w-full" />
-    </UniqueId>
-
-    <UniqueId as="section" v-slot="{ id }" class="space-y-1">
-      <Label :for="id">{{ t('labels.description') }}</Label>
-      <Textarea v-model="key.description" class="w-full" />
-    </UniqueId>
-
-    <UniqueId as="section" v-slot="{ id }" class="space-y-1">
-      <header class="flex items-center justify-between">
-        <Label :for="id">{{ t('labels.expiresAt') }}</Label>
-        <div>
-          <label class="inline-flex cursor-pointer items-center gap-2">
-            <span class="text-sm font-light text-gray-600 italic">
-              {{ t('labels.neverExpires') }}
-            </span>
-            <input :disabled="expires" type="checkbox" v-model="expires" class="form-checkbox" />
-          </label>
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between gap-4">
+            <h2 class="font-semibold text-gray-900">{{ t('alerts.success.uid') }}</h2>
+            <ClipboardButton :source="createdKey.uid" :copy-text="t('actions.copyUid')" class="size-5 shrink-0" />
+          </div>
+          <p class="rounded-lg bg-gray-50 p-3 font-mono text-sm break-all text-gray-700">{{ createdKey.uid }}</p>
         </div>
-      </header>
-      <div>
-        <input type="datetime-local" v-model="key.expiresAt" class="form-input w-full" />
-      </div>
-    </UniqueId>
-
-    <footer class="flex flex-col items-center justify-end sm:flex-row">
+      </section>
       <Buttons>
-        <Button type="reset" :disabled="!modified || loading" />
-        <Button type="submit" :disabled="!modified || loading" :loading />
+        <Button :as="RouterLink" to="/keys" theme="secondary">{{ t('actions.done') }}</Button>
+        <Button theme="primary" icon="pajamas:doc-new" @click="createdKey = null">
+          {{ t('actions.createAnother') }}
+        </Button>
       </Buttons>
-    </footer>
-  </form>
+    </div>
+
+    <form v-else class="mx-auto max-w-4xl space-y-6" @reset.prevent="reset()" @submit.prevent="submit()">
+      <Alert v-if="error" dismissable theme="danger" @close="error = null">
+        {{ error }}
+      </Alert>
+
+      <section class="space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-xs">
+        <header>
+          <h2 class="text-lg font-semibold text-gray-900">{{ t('sections.details.title') }}</h2>
+          <p class="mt-1 text-sm text-gray-500">{{ t('sections.details.description') }}</p>
+        </header>
+        <UniqueId as="div" v-slot="{ id }" class="space-y-1">
+          <Label :for="id">{{ t('labels.name') }}</Label>
+          <input :id v-focus v-model="key.name" class="form-input w-full" />
+        </UniqueId>
+        <UniqueId as="div" v-slot="{ id }" class="space-y-1">
+          <Label :for="id">{{ t('labels.description') }}</Label>
+          <Textarea :id v-model="key.description" class="w-full" />
+        </UniqueId>
+      </section>
+
+      <section class="space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-xs">
+        <header>
+          <h2 class="text-lg font-semibold text-gray-900">{{ t('sections.permissions.title') }}</h2>
+          <p class="mt-1 text-sm text-gray-500">{{ t('sections.permissions.description') }}</p>
+        </header>
+        <fieldset class="space-y-2">
+          <legend class="font-medium">{{ t('labels.preset') }}</legend>
+          <div class="grid gap-3 sm:grid-cols-3">
+            <button
+              v-for="preset of PERMISSION_PRESETS"
+              :key="preset"
+              type="button"
+              :aria-pressed="activePreset === preset"
+              class="rounded-lg border p-3 text-left transition-colors"
+              :class="
+                activePreset === preset
+                  ? 'border-primary-500 bg-primary-50 ring-primary-100 ring-2'
+                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              "
+              @click="applyPreset(preset)">
+              <span class="block text-sm font-semibold text-gray-900">{{ t(`presets.${preset}.title`) }}</span>
+              <span class="mt-1 block text-xs leading-4 text-gray-500">{{ t(`presets.${preset}.description`) }}</span>
+            </button>
+          </div>
+        </fieldset>
+
+        <div class="space-y-3 border-t border-gray-100 pt-4">
+          <div>
+            <h3 class="font-medium">{{ t('labels.actions') }}</h3>
+            <p class="mt-0.5 text-xs text-gray-500">{{ t('hints.toggleGroup') }}</p>
+          </div>
+          <DefineActionCheckbox v-slot="{ action }">
+            <UniqueId
+              v-tippy="t(`keyActions.${action}.description`)"
+              as="div"
+              class="flex items-center gap-1"
+              v-slot="{ id }">
+              <input :id :value="action" v-model="key.actions" type="checkbox" class="peer sr-only" />
+              <Label
+                :for="id"
+                class="cursor-pointer rounded-md peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2">
+                <Badge :theme="key.actions.includes(action) ? 'success' : 'neutral'">
+                  {{ t(`keyActions.${action}.label`) }}
+                </Badge>
+              </Label>
+            </UniqueId>
+          </DefineActionCheckbox>
+
+          <dl class="grid grid-cols-[minmax(6rem,auto)_1fr] gap-x-4 gap-y-3 text-sm">
+            <template v-for="group of ACTION_GROUPS" :key="group.label">
+              <dt>
+                <button
+                  type="button"
+                  class="text-left font-medium hover:underline"
+                  @click="toggleActions(group.actions)">
+                  {{ t(`labels.action.${group.label}`) }}
+                </button>
+              </dt>
+              <dd class="flex flex-wrap items-center gap-3">
+                <template v-for="action of group.actions" :key="action">
+                  <ActionCheckbox :action />
+                </template>
+              </dd>
+            </template>
+          </dl>
+        </div>
+      </section>
+
+      <section class="space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-xs">
+        <header>
+          <h2 class="text-lg font-semibold text-gray-900">{{ t('sections.scope.title') }}</h2>
+          <p class="mt-1 text-sm text-gray-500">{{ t('sections.scope.description') }}</p>
+        </header>
+        <UniqueId as="div" v-slot="{ id }" class="space-y-2">
+          <div class="flex items-center justify-between gap-4">
+            <Label :for="id">{{ t('labels.indexes') }}</Label>
+            <label class="inline-flex cursor-pointer items-center gap-2">
+              <input type="checkbox" v-model="key.indexes" value="*" class="form-checkbox" />
+              <span class="text-sm text-gray-600">{{ t('labels.allIndexes') }}</span>
+            </label>
+          </div>
+          <MultiCombobox
+            :items="indexes"
+            v-model="key.indexes"
+            class="w-full"
+            :input-attrs="{ id, disabled: key.indexes.includes('*') }" />
+        </UniqueId>
+
+        <UniqueId as="div" v-slot="{ id }" class="space-y-2 border-t border-gray-100 pt-4">
+          <div class="flex items-center justify-between gap-4">
+            <Label :for="id">{{ t('labels.expiresAt') }}</Label>
+            <label class="inline-flex cursor-pointer items-center gap-2">
+              <input type="checkbox" v-model="neverExpires" class="form-checkbox" />
+              <span class="text-sm text-gray-600">{{ t('labels.neverExpires') }}</span>
+            </label>
+          </div>
+          <input
+            :id
+            type="datetime-local"
+            v-model="expiresAtInput"
+            :disabled="neverExpires"
+            class="form-input w-full" />
+        </UniqueId>
+
+        <Alert v-if="hasBroadAccess" theme="warning" :title="t('alerts.broadAccess.title')">
+          {{ t('alerts.broadAccess.description') }}
+        </Alert>
+      </section>
+
+      <footer class="flex items-center justify-between gap-4">
+        <Button type="reset" theme="secondary" :disabled="!modified || loading">{{ t('actions.reset') }}</Button>
+        <Buttons>
+          <Button :as="RouterLink" to="/keys" theme="secondary">{{ t('actions.cancel') }}</Button>
+          <Button type="submit" theme="primary" :disabled="!canSubmit || loading" :loading>
+            {{ t('actions.create') }}
+          </Button>
+        </Buttons>
+      </footer>
+    </form>
+  </Layout>
 </template>
 
 <script setup lang="ts">
@@ -189,17 +191,16 @@ import Badge from '~/components/layout/Badge.vue'
 import MultiCombobox from '~/components/layout/forms/MultiCombobox.vue'
 import ClipboardButton from '~/components/layout/forms/ClipboardButton.vue'
 import { useFormSubmit, useMeiliClient } from '~/composables'
-import { TOAST_FAILURE, TOAST_SUCCESS, useToasts } from '~/stores/toasts'
-import { resettableRef } from '~/utils'
+import { TOAST_FAILURE, TOAST_PLEASEWAIT, TOAST_SUCCESS, useToasts } from '~/stores/toasts'
+import { formatDateTimeLocal, resettableRef } from '~/utils'
 import { createReusableTemplate, watchArray } from '@vueuse/core'
 import type { Key } from 'meilisearch'
 import type { ComputedRef } from 'vue'
+import { RouterLink } from 'vue-router'
 
 const [DefineActionCheckbox, ActionCheckbox] = createReusableTemplate()
 const { t } = useI18n()
-const { loading, error, handle } = useFormSubmit({
-  confirm: { text: t('confirmations.submit') },
-})
+const { loading, error, handle } = useFormSubmit()
 const factory = () => ({
   name: '',
   description: '',
@@ -214,25 +215,58 @@ const self = reactive({
   key,
   createdKey: null as Key | null,
 })
-const expires = computed({
+const defaultExpiration = () => {
+  const date = new Date()
+  date.setMonth(date.getMonth() + 1)
+  return date
+}
+const neverExpires = computed({
   get: () => !self.key.expiresAt,
-  set(value: string | boolean) {
-    if ('boolean' === typeof value) {
-      self.key.expiresAt = value
-        ? null
-        : (new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString() as unknown as Date)
-    } else {
-      self.key.expiresAt = value as unknown as Date
-    }
+  set(value: boolean) {
+    self.key.expiresAt = value ? null : defaultExpiration()
   },
 }) as ComputedRef<boolean>
+const expiresAtInput = computed({
+  get: () => (self.key.expiresAt ? formatDateTimeLocal(self.key.expiresAt) : ''),
+  set(value: string) {
+    self.key.expiresAt = value ? new Date(value) : null
+  },
+})
 const DOCUMENT_ACTIONS = ['documents.get', 'documents.add', 'documents.delete']
 const INDEX_ACTIONS = ['indexes.get', 'indexes.create', 'indexes.update', 'indexes.delete', 'indexes.swap']
 const TASK_ACTIONS = ['tasks.get', 'tasks.cancel', 'tasks.delete']
 const KEY_ACTIONS = ['keys.get', 'keys.create', 'keys.update', 'keys.delete']
 const SETTINGS_ACTIONS = ['settings.get', 'settings.update']
 const MISC_ACTIONS = ['version', 'stats.get', 'dumps.create', 'snapshots.create']
+const ACTION_GROUPS = [
+  { label: 'search', actions: ['search'] },
+  { label: 'documents', actions: DOCUMENT_ACTIONS },
+  { label: 'indexes', actions: INDEX_ACTIONS },
+  { label: 'tasks', actions: TASK_ACTIONS },
+  { label: 'keys', actions: KEY_ACTIONS },
+  { label: 'settings', actions: SETTINGS_ACTIONS },
+  { label: 'misc', actions: MISC_ACTIONS },
+]
+const PERMISSION_PRESETS = ['search', 'documents', 'admin'] as const
+type PermissionPreset = (typeof PERMISSION_PRESETS)[number]
+const sameActions = (actions: string[]) =>
+  actions.length === self.key.actions.length && actions.every((action) => self.key.actions.includes(action))
+const activePreset = computed(() => {
+  if (sameActions(['search'])) return 'search'
+  if (sameActions(DOCUMENT_ACTIONS)) return 'documents'
+  if (sameActions(['*'])) return 'admin'
+  return 'custom'
+})
+const applyPreset = (preset: PermissionPreset) => {
+  self.key.actions = [...('search' === preset ? ['search'] : 'documents' === preset ? DOCUMENT_ACTIONS : ['*'])]
+  if ('admin' === preset) self.key.indexes = ['*']
+}
+const hasBroadAccess = computed(
+  () => self.key.actions.includes('*') || (self.key.indexes.includes('*') && !self.key.expiresAt),
+)
+const canSubmit = computed(() => self.key.actions.length > 0 && self.key.indexes.length > 0 && modified.value)
 const toggleActions = (actions: string[]) => {
+  if (self.key.actions.includes('*')) self.key.actions = []
   const nbIncludedActions = self.key.actions.filter((action) => actions.includes(action)).length
   for (const action of actions) {
     const index = self.key.actions.findIndex((_action) => _action === action)
@@ -269,27 +303,47 @@ const submit = async () => {
       toast.update({
         ...TOAST_FAILURE(t),
       })
+      throw e
     }
   })
 }
 
 const { createdKey } = toRefs(self)
 const indexes = (await meili.getRawIndexes({ limit: 1000 })).results.map(({ uid }) => uid)
+useHead({ title: t('title') })
 </script>
 
 <i18n>
 en:
   title: Create API Key
+  subtitle: Choose the minimum access this key needs.
   toasts:
     success:
       title: Creating your key...
-  confirmations:
-    submit: Do you want to create this key?
+    titles:
+      error: An error occurred.
+    texts:
+      pleaseWait: Please wait...
+      done: Done.
   alerts:
       success:
         title: Your key was successfully created!
+        description: Copy the key and store it somewhere secure before continuing.
         uid: UID
         secretKey: Secret key
+      broadAccess:
+        title: Broad access
+        description: This key has full permissions or combines access to every index with no expiration. Only use this for trusted applications.
+  sections:
+    details:
+      title: Key details
+      description: Give this key a recognizable name so it is easy to identify later.
+    permissions:
+      title: Permissions
+      description: Start with a common preset, then fine-tune individual actions if needed.
+    scope:
+      title: Scope and expiration
+      description: Limit where the key works and how long it remains valid.
   labels:
     name: Name
     description: Description
@@ -298,6 +352,7 @@ en:
     expiresAt: Expires
     allIndexes: All indexes
     neverExpires: Never
+    preset: Permission preset
     action:
       search: Search
       documents: Documents
@@ -306,6 +361,27 @@ en:
       keys: Keys
       settings: Settings
       misc: Misc.
+  presets:
+    search:
+      title: Search only
+      description: Run searches without changing indexes or documents.
+    documents:
+      title: Manage documents
+      description: Read, add, update, and delete documents.
+    admin:
+      title: Full administration
+      description: Unrestricted access to every action and index.
+  actions:
+    back: Back to access keys
+    cancel: Cancel
+    reset: Reset
+    create: Create API key
+    createAnother: Create another key
+    done: Done
+    copyKey: Copy key
+    copyUid: Copy UID
+  hints:
+    toggleGroup: Select a category name to toggle the whole group.
   keyActions:
     search:
       label: SEARCH

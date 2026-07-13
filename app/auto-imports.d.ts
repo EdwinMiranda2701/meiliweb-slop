@@ -61,6 +61,7 @@ declare global {
   const encodeFilterableAttributes: typeof import('./utils/filterable-attributes').encodeFilterableAttributes
   const exportDocuments: typeof import('./utils/exporter').exportDocuments
   const extendRef: typeof import('@vueuse/core').extendRef
+  const formatDateTimeLocal: typeof import('./utils/date-time-local').formatDateTimeLocal
   const getActivePinia: typeof import('pinia').getActivePinia
   const getCurrentInstance: typeof import('vue').getCurrentInstance
   const getCurrentScope: typeof import('vue').getCurrentScope
@@ -477,6 +478,7 @@ declare module 'vue' {
     readonly encodeFilterableAttributes: UnwrapRef<typeof import('./utils/filterable-attributes')['encodeFilterableAttributes']>
     readonly exportDocuments: UnwrapRef<typeof import('./utils/exporter')['exportDocuments']>
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
+    readonly formatDateTimeLocal: UnwrapRef<typeof import('./utils/date-time-local')['formatDateTimeLocal']>
     readonly getActivePinia: UnwrapRef<typeof import('pinia')['getActivePinia']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>

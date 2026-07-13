@@ -1,7 +1,9 @@
 <template>
   <div class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-xs">
     <div :class="horizontalScroll ? 'overflow-x-auto' : ''">
-      <table :class="horizontalScroll ? 'w-max min-w-full' : 'w-full table-fixed'" class="text-left">
+      <table
+        :class="horizontalScroll ? 'w-max min-w-full' : autoLayout ? 'w-full table-auto' : 'w-full table-fixed'"
+        class="text-left">
         <thead class="border-b border-gray-200 bg-gray-50/80">
           <slot name="head">
             <tr class="*:px-4 *:py-3 *:text-left *:text-xs *:font-semibold *:tracking-wide *:text-gray-600 *:uppercase">
@@ -42,9 +44,10 @@ type Props = {
   keys?: Array<string>
   columns?: Array<string>
   horizontalScroll?: boolean
+  autoLayout?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), { items: () => [], horizontalScroll: false })
+const props = withDefaults(defineProps<Props>(), { items: () => [], horizontalScroll: false, autoLayout: false })
 
 const self = reactive({
   keys: computed(() => props.keys ?? Object.keys(props.items[0] ?? {})),

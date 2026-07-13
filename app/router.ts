@@ -148,26 +148,22 @@ const routes: RouteRecordRaw[] = [
     component: () => import('~/pages/keys/index.vue'),
   },
   {
-    path: '/keys/settings',
-    name: 'keys-settings',
-    component: () => import('~/pages/keys/settings.vue'),
+    path: '/keys/create',
+    name: 'keys-create',
+    component: () => import('~/pages/keys/settings/create.vue'),
+  },
+  {
+    path: '/keys/tenant-token',
+    name: 'keys-tenant-token',
+    component: () => import('~/pages/keys/settings/create-token.vue'),
+  },
+  {
+    path: '/keys/settings/:legacyPath(create|create-token)?',
     redirect: (to) => ({
-      name: 'keys-settings-create',
+      name: 'create-token' === to.params.legacyPath ? 'keys-tenant-token' : 'keys-create',
       query: to.query,
       hash: to.hash,
     }),
-    children: [
-      {
-        path: 'create',
-        name: 'keys-settings-create',
-        component: () => import('~/pages/keys/settings/create.vue'),
-      },
-      {
-        path: 'create-token',
-        name: 'keys-settings-create-token',
-        component: () => import('~/pages/keys/settings/create-token.vue'),
-      },
-    ],
   },
   {
     path: '/tasks',

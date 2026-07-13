@@ -1,137 +1,148 @@
 <template>
-  <form class="space-y-4" @submit.prevent>
-    <h3 class="inline-flex w-full items-center justify-between text-xl font-semibold">
-      {{ t('title') }}
+  <Layout :title="t('title')" :subtitle="t('subtitle')">
+    <template #title-actions>
       <DocumentationLink href="https://www.meilisearch.com/docs/learn/security/tenant_tokens" />
-    </h3>
-
-    <DefineAddRuleMenu v-slot="{ big }">
-      <ContextualMenu v-if="availableIndexes.length > 0">
-        <template #button>
-          <MenuButton>
-            <Button theme="primary" icon="zondicons:add-solid" :no-padding="!big" :class="big || 'px-2 py-1 text-xs'">
-              {{ t('labels.addRule') }}
-            </Button>
-          </MenuButton>
-        </template>
-        <div class="block w-full cursor-default px-2 py-1.5 text-left text-xs font-light text-gray-500 italic">
-          {{ t('labels.pickAnIndex') }}
-        </div>
-        <MenuItem v-for="indexUid of availableIndexes" :key="indexUid" v-slot="{ active }">
-          <button
-            type="button"
-            class="block w-full px-2 py-1.5 text-left text-sm font-light"
-            :class="[active ? 'bg-primary-100' : 'bg-transparent']"
-            @click="addSearchRule(indexUid)">
-            {{ humanizeString(indexUid) }}
-          </button>
-        </MenuItem>
-      </ContextualMenu>
-    </DefineAddRuleMenu>
-
-    <div v-if="0 === Object.entries(searchRules).length" class="flex items-center justify-center py-10">
-      <AddRuleMenu :big="true" />
-    </div>
-
-    <template v-else>
-      <UniqueId as="section" v-slot="{ id }" class="space-y-1">
-        <header class="flex items-center justify-between">
-          <Label :for="id">{{ t('labels.searchRules') }}</Label>
-          <AddRuleMenu />
-        </header>
-      </UniqueId>
-
-      <UniqueId
-        as="section"
-        v-for="[indexUid, rules] of searchRulesMap.entries()"
-        :key="indexUid"
-        v-slot="{ id }"
-        class="space-y-1">
-        <header class="flex items-center justify-between">
-          <Label :for="id" class="text-primary-800 text-sm font-light capitalize">
-            {{ indexUid }}
-          </Label>
-          <button v-tippy="t('labels.removeRule')" type="button" @click="searchRulesMap.delete(indexUid)">
-            <Icon name="wpf:full-trash" />
-          </button>
-        </header>
-        <input
-          v-focus
-          v-model="rules.filter"
-          :placeholder="
-            placeholders.has(indexUid)
-              ? t('placeholders.example', {
-                  example: placeholders.get(indexUid),
-                })
-              : undefined
-          "
-          type="text"
-          class="form-input w-full" />
-        <div v-if="filterStats.has(indexUid)" class="text-xs">
-          <span class="text-green-600 italic">
-            {{
-              t('hints.matchingDocuments', {
-                nbFilteredDocuments: (filterStats.get(indexUid) as FilterStat)[0],
-                nbTotalDocuments: (filterStats.get(indexUid) as FilterStat)[1],
-              })
-            }}
-          </span>
-          <span v-if="jwt">&nbsp;-&nbsp;</span>
-          <RouterLink
-            v-if="jwt"
-            :to="`/indexes/${indexUid}/documents?tenantToken=${jwt}`"
-            class="text-primary-700 hover:text-primary-800 italic"
-            target="_blank">
-            {{ t('labels.preview') }}
-          </RouterLink>
-        </div>
-        <span v-else class="text-xs text-red-600 italic">
-          {{ t('hints.invalidFilterQuery') }}
-        </span>
-      </UniqueId>
-
-      <UniqueId
-        v-if="[...searchRulesMap.entries()].length > 0"
-        as="section"
-        v-slot="{ id }"
-        class="space-y-1 *:block *:w-full">
-        <Label required :for="id">{{ t('labels.key') }}</Label>
-        <Select required v-model="keyToUse">
-          <option />
-          <option v-for="key of keys.results" :value="key">
-            {{ key.name ?? key.uid }}
-          </option>
-        </Select>
-      </UniqueId>
-
-      <UniqueId v-if="jwt" as="section" v-slot="{ id }" class="space-y-1">
-        <header class="flex items-center justify-between">
-          <Label :for="id">{{ t('labels.expiresAt') }}</Label>
-          <div>
-            <label class="inline-flex cursor-pointer items-center gap-2">
-              <span class="text-sm font-light text-gray-600 italic">
-                {{ t('labels.neverExpires') }}
-              </span>
-              <input :disabled="expires" type="checkbox" v-model="expires" class="form-checkbox" />
-            </label>
-          </div>
-        </header>
-        <div>
-          <input type="datetime-local" v-model="expiresAt" class="form-input w-full" />
-        </div>
-      </UniqueId>
-
-      <section v-if="jwt" class="rounded-md bg-green-100 p-4 shadow-md">
-        <header class="flex items-center justify-between pb-2">
-          <h4 class="font-medium">{{ t('labels.jwt') }}</h4>
-          <ClipboardButton :source="jwt" class="size-6 shrink-0" />
-        </header>
-        <p class="font-mono text-sm break-words">
-          {{ jwt }}
-        </p>
-      </section>
     </template>
-  </form>
+    <template #actions>
+      <Button :as="RouterLink" to="/keys" theme="secondary" icon="heroicons:arrow-left">
+        {{ t('actions.back') }}
+      </Button>
+    </template>
+
+    <form class="mx-auto max-w-4xl space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-xs" @submit.prevent>
+      <DefineAddRuleMenu v-slot="{ big }">
+        <ContextualMenu v-if="availableIndexes.length > 0">
+          <template #button>
+            <MenuButton>
+              <Button theme="primary" icon="zondicons:add-solid" :no-padding="!big" :class="big || 'px-2 py-1 text-xs'">
+                {{ t('labels.addRule') }}
+              </Button>
+            </MenuButton>
+          </template>
+          <div class="block w-full cursor-default px-2 py-1.5 text-left text-xs font-light text-gray-500 italic">
+            {{ t('labels.pickAnIndex') }}
+          </div>
+          <MenuItem v-for="indexUid of availableIndexes" :key="indexUid" v-slot="{ active }">
+            <button
+              type="button"
+              class="block w-full px-2 py-1.5 text-left text-sm font-light"
+              :class="[active ? 'bg-primary-100' : 'bg-transparent']"
+              @click="addSearchRule(indexUid)">
+              {{ humanizeString(indexUid) }}
+            </button>
+          </MenuItem>
+        </ContextualMenu>
+      </DefineAddRuleMenu>
+
+      <div v-if="0 === Object.entries(searchRules).length" class="flex items-center justify-center py-10">
+        <AddRuleMenu :big="true" />
+      </div>
+
+      <template v-else>
+        <UniqueId as="section" v-slot="{ id }" class="space-y-1">
+          <header class="flex items-center justify-between">
+            <Label :for="id">{{ t('labels.searchRules') }}</Label>
+            <AddRuleMenu />
+          </header>
+        </UniqueId>
+
+        <UniqueId
+          as="section"
+          v-for="[indexUid, rules] of searchRulesMap.entries()"
+          :key="indexUid"
+          v-slot="{ id }"
+          class="space-y-1">
+          <header class="flex items-center justify-between">
+            <Label :for="id" class="text-primary-800 text-sm font-light capitalize">
+              {{ indexUid }}
+            </Label>
+            <button v-tippy="t('labels.removeRule')" type="button" @click="searchRulesMap.delete(indexUid)">
+              <Icon name="wpf:full-trash" />
+            </button>
+          </header>
+          <input
+            v-focus
+            v-model="rules.filter"
+            :placeholder="
+              placeholders.has(indexUid)
+                ? t('placeholders.example', {
+                    example: placeholders.get(indexUid),
+                  })
+                : undefined
+            "
+            type="text"
+            class="form-input w-full" />
+          <div v-if="filterStats.has(indexUid)" class="text-xs">
+            <span class="text-green-600 italic">
+              {{
+                t('hints.matchingDocuments', {
+                  nbFilteredDocuments: (filterStats.get(indexUid) as FilterStat)[0],
+                  nbTotalDocuments: (filterStats.get(indexUid) as FilterStat)[1],
+                })
+              }}
+            </span>
+            <span v-if="jwt">&nbsp;-&nbsp;</span>
+            <RouterLink
+              v-if="jwt"
+              :to="`/indexes/${indexUid}/documents?tenantToken=${jwt}`"
+              class="text-primary-700 hover:text-primary-800 italic"
+              target="_blank">
+              {{ t('labels.preview') }}
+            </RouterLink>
+          </div>
+          <span v-else class="text-xs text-red-600 italic">
+            {{ t('hints.invalidFilterQuery') }}
+          </span>
+        </UniqueId>
+
+        <UniqueId
+          v-if="[...searchRulesMap.entries()].length > 0"
+          as="section"
+          v-slot="{ id }"
+          class="space-y-1 *:block *:w-full">
+          <Label required :for="id">{{ t('labels.key') }}</Label>
+          <Select required v-model="keyToUse">
+            <option />
+            <option v-for="key of keys.results" :value="key">
+              {{ key.name || key.uid }}
+            </option>
+          </Select>
+        </UniqueId>
+
+        <UniqueId v-if="jwt" as="section" v-slot="{ id }" class="space-y-1">
+          <header class="flex items-center justify-between">
+            <Label :for="id">{{ t('labels.expiresAt') }}</Label>
+            <div>
+              <label class="inline-flex cursor-pointer items-center gap-2">
+                <span class="text-sm font-light text-gray-600 italic">
+                  {{ t('labels.neverExpires') }}
+                </span>
+                <input type="checkbox" v-model="neverExpires" class="form-checkbox" />
+              </label>
+            </div>
+          </header>
+          <div>
+            <input
+              :id
+              type="datetime-local"
+              v-model="expiresAtInput"
+              :disabled="neverExpires"
+              class="form-input w-full" />
+          </div>
+        </UniqueId>
+
+        <section v-if="jwt" class="rounded-md bg-green-100 p-4 shadow-md">
+          <header class="flex items-center justify-between pb-2">
+            <h4 class="font-medium">{{ t('labels.jwt') }}</h4>
+            <ClipboardButton :source="jwt" class="size-6 shrink-0" />
+          </header>
+          <p class="font-mono text-sm break-words">
+            {{ jwt }}
+          </p>
+        </section>
+      </template>
+    </form>
+  </Layout>
 </template>
 
 <script setup lang="ts">
@@ -144,9 +155,10 @@ import ClipboardButton from '~/components/layout/forms/ClipboardButton.vue'
 import ContextualMenu from '~/components/layout/ContextualMenu.vue'
 import { useMeiliClient } from '~/composables'
 import { MenuButton, MenuItem } from '@headlessui/vue'
+import { RouterLink } from 'vue-router'
 import type { Key, TokenSearchRules } from 'meilisearch'
 import type { ComputedRef } from 'vue'
-import { createJwt, getFilterableAttributePatterns } from '~/utils'
+import { createJwt, formatDateTimeLocal, getFilterableAttributePatterns } from '~/utils'
 import { field } from 'meilisearch-filters'
 import { createReusableTemplate, watchArray } from '@vueuse/core'
 import humanizeString from 'humanize-string'
@@ -174,24 +186,30 @@ const self: Self = reactive({
   searchRules: computed(() => Object.fromEntries(searchRulesMap.entries())),
   jwt: computed(() => (self.keyToUse ? createJwt(self.searchRules, self.keyToUse, self.expiresAt ?? undefined) : null)),
 })
-const expires = computed({
+const defaultExpiration = () => {
+  const date = new Date()
+  date.setMonth(date.getMonth() + 1)
+  return date
+}
+const neverExpires = computed({
   get: () => !self.expiresAt,
-  set(value: string | boolean) {
-    if ('boolean' === typeof value) {
-      self.expiresAt = value
-        ? null
-        : (new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString() as unknown as Date)
-    } else {
-      self.expiresAt = value as unknown as Date
-    }
+  set(value: boolean) {
+    self.expiresAt = value ? null : defaultExpiration()
   },
 }) as ComputedRef<boolean>
-const { keyToUse, searchRules, expiresAt, jwt } = toRefs(self)
+const expiresAtInput = computed({
+  get: () => (self.expiresAt ? formatDateTimeLocal(self.expiresAt) : ''),
+  set(value: string) {
+    self.expiresAt = value ? new Date(value) : null
+  },
+})
+const { keyToUse, searchRules, jwt } = toRefs(self)
 const [indexes, keys] = await Promise.all([
   meili.getIndexes({ limit: 1000 }).then(({ results }) => results.map(({ uid }) => uid)),
   meili.getKeys(),
 ])
 const availableIndexes = computed(() => indexes.filter((indexUid) => ![...searchRulesMap.keys()].includes(indexUid)))
+useHead({ title: t('title') })
 
 const addSearchRule = async (indexUid: string) => {
   searchRulesMap.set(indexUid, { filter: '' })
@@ -268,7 +286,8 @@ watchArray(
 
 <i18n>
 en:
-  title: Create tenant token
+  title: Generate tenant token
+  subtitle: Create a scoped search token from an existing API key.
   labels:
     key: Signing key
     searchRules: Search Rules
@@ -279,6 +298,8 @@ en:
     neverExpires: Never
     pickAnIndex: Pick an index below...
     preview: Preview
+  actions:
+    back: Back to access keys
   placeholders:
     example: "Example: {example}"
   hints:

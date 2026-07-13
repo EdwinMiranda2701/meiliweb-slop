@@ -1,9 +1,9 @@
 <template>
   <div class="pb-4">
-    <h3 class="text-md bg-gray-100 p-4 capitalize">
+    <h3 class="text-md bg-gray-100 px-4 py-4 sm:px-6">
       {{ humanizeString(facet) }}
     </h3>
-    <div class="mt-14 px-12">
+    <div class="px-6 pt-10 pb-2 sm:px-8">
       <RangeSlider v-model="value" class="w-full" :min :max :format />
     </div>
   </div>

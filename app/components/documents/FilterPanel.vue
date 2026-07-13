@@ -32,10 +32,11 @@
           <MultiCombobox
             v-model="facets"
             :items="filterableAttributes.filter((a) => '_geo' !== a)"
+            :stringify="humanizeString"
             class="block w-full"
             :input-attrs="{
               class: 'text-xs',
-              placeholder: t('placeholders.enableFacets'),
+              placeholder: (facets?.length ?? 0) > 0 ? '' : t('placeholders.enableFacets'),
             }" />
         </div>
       </UniqueId>
@@ -48,7 +49,7 @@
       </i18n-t>
     </section>
 
-    <section v-if="(facets as NonNullable<string[]>).length > 0" class="space-y-6 pt-6 pb-6">
+    <section v-if="(facets as NonNullable<string[]>).length > 0" class="space-y-4 pt-6 pb-6">
       <h3 class="text-md px-4 font-medium sm:px-6">
         {{ t('titles.filters') }}
       </h3>
@@ -60,7 +61,7 @@
           :facet
           :applied-filters="appliedFilters" />
         <RangeFacet
-          v-if="FACET_TYPE_RANGE === facetsTypeMap.get(facet)"
+          v-else-if="FACET_TYPE_RANGE === facetsTypeMap.get(facet) && facetStats[facet]"
           :index-uid="indexUid"
           :facet
           :min="facetStats[facet].min"
@@ -104,7 +105,33 @@ const self = reactive({
   facetStats: {} as FacetStats,
 })
 
+const isProbablyRangeFacet = (
+  attribute: string,
+  numericFacets: string[],
+  stringFacets: string[],
+  facetDistribution: FacetDistribution,
+  facetStats: FacetStats,
+) => {
+  if (!numericFacets.includes(attribute)) return false
+
+  const stats = facetStats[attribute]
+  // Degenerate ranges (booleans with a single value, constants) are better as chips.
+  if (!stats || stats.min === stats.max) return false
+
+  const keys = Object.keys(facetDistribution[attribute] ?? {})
+  // Low-cardinality numerics (0/1 flags, small enums) work better as discrete chips.
+  if (keys.length > 0 && keys.length <= 10) return false
+
+  return !stringFacets.includes(attribute) || keys.every((key) => !isNaN(Number(key)))
+}
+
 const hydrateFacetsTypes = async (facets: string[]) => {
+  if (!facets?.length) {
+    self.facetsTypeMap.clear()
+    self.facetStats = {}
+    return
+  }
+
   const search = await meili.index(props.indexUid).search(
     null,
     reactive({
@@ -112,24 +139,23 @@ const hydrateFacetsTypes = async (facets: string[]) => {
       facets,
     }),
   )
-  const stringFacets = Object.keys(search.facetDistribution as FacetDistribution)
-  const numericFacets = Object.keys(search.facetStats as FacetStats)
-  const isProbablyRangeFacet = (attribute: string) =>
-    numericFacets.includes(attribute) &&
-    (!stringFacets.includes(attribute) ||
-      Object.keys(search.facetDistribution![attribute] ?? {}).every((key: any) => !isNaN(key)))
+  const facetDistribution = (search.facetDistribution ?? {}) as FacetDistribution
+  const facetStats = (search.facetStats ?? {}) as FacetStats
+  const stringFacets = Object.keys(facetDistribution)
+  const numericFacets = Object.keys(facetStats)
 
+  self.facetsTypeMap.clear()
   for (const attribute of facets) {
     if ('_geo' === attribute) {
       self.facetsTypeMap.set(attribute, FACET_TYPE_GEO)
-    } else if (isProbablyRangeFacet(attribute)) {
+    } else if (isProbablyRangeFacet(attribute, numericFacets, stringFacets, facetDistribution, facetStats)) {
       self.facetsTypeMap.set(attribute, FACET_TYPE_RANGE)
     } else if (stringFacets.includes(attribute)) {
       self.facetsTypeMap.set(attribute, FACET_TYPE_STRING)
     }
   }
 
-  self.facetStats = search.facetStats as FacetStats
+  self.facetStats = facetStats
 }
 
 watch(facets as unknown as string[], hydrateFacetsTypes)

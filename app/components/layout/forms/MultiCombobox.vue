@@ -40,7 +40,7 @@
                 class="grow border-none p-0 outline-none focus:ring-0"
                 @focus="showOptions"
                 @blur="onBlur($event.target)"
-                @change="query = $event.target.value" />
+                @change="onQueryChange($event.target.value)" />
             </span>
 
             <div class="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
@@ -56,41 +56,46 @@
 
         <div v-show="open" class="absolute z-20 mt-1 w-full rounded-xl border border-gray-200 bg-white p-1 shadow-xl">
           <ComboboxOptions
-            :static="!autoHide"
-            v-if="availableItems.length > 0"
+            static
             class="max-h-60 overflow-auto rounded-lg py-1 text-base leading-6 focus:outline-none sm:text-sm sm:leading-5">
-            <ComboboxOption
-              v-for="item of availableItems"
-              :key="uniqueKey(item)"
-              v-slot="{ active, selected }"
-              :value="uniqueKey(item)"
-              :disabled="disabled.includes(uniqueKey(item))"
-              @click="() => autoHide && hideOptions()">
-              <slot v-bind="{ item, active, selected, stringify }">
-                <li
-                  class="relative cursor-default rounded-lg py-2 pr-9 pl-3 select-none focus:outline-none"
-                  :class="active ? 'bg-primary-50 text-primary-900' : 'text-gray-900'">
-                  <span
-                    class="block"
-                    :class="{
-                      truncate: !active,
-                      'font-semibold': selected,
-                      'font-normal': !selected,
-                    }">
-                    {{ stringify(item) }}
-                  </span>
-                  <span
-                    v-if="selected"
-                    class="absolute inset-y-0 right-0 flex items-center pr-4"
-                    :class="{
-                      'text-primary-700': active,
-                      'text-primary-600': !active,
-                    }">
-                    <CheckIcon class="h-5 w-5" />
-                  </span>
-                </li>
-              </slot>
-            </ComboboxOption>
+            <template v-if="availableItems.length > 0">
+              <ComboboxOption
+                v-for="item of availableItems"
+                :key="uniqueKey(item)"
+                v-slot="{ active, selected }"
+                :value="uniqueKey(item)"
+                :disabled="disabled.includes(uniqueKey(item))">
+                <slot v-bind="{ item, active, selected, stringify }">
+                  <li
+                    class="relative cursor-default rounded-lg py-2 pr-9 pl-3 select-none focus:outline-none"
+                    :class="active ? 'bg-primary-50 text-primary-900' : 'text-gray-900'">
+                    <span
+                      class="block"
+                      :class="{
+                        truncate: !active,
+                        'font-semibold': selected,
+                        'font-normal': !selected,
+                      }">
+                      {{ stringify(item) }}
+                    </span>
+                    <span
+                      v-if="selected"
+                      class="absolute inset-y-0 right-0 flex items-center pr-4"
+                      :class="{
+                        'text-primary-700': active,
+                        'text-primary-600': !active,
+                      }">
+                      <CheckIcon class="h-5 w-5" />
+                    </span>
+                  </li>
+                </slot>
+              </ComboboxOption>
+            </template>
+            <slot v-else name="no-options">
+              <li role="presentation" class="px-3 py-4 text-center text-sm text-gray-500 italic">
+                {{ t('noOptions') }}
+              </li>
+            </slot>
           </ComboboxOptions>
         </div>
       </div>
@@ -185,11 +190,17 @@ const filteredItems = computed(() =>
   get(items).filter((item) => !get(selectedKeys).map(uniqueKey).includes(uniqueKey(item))),
 )
 const availableItems = ref(get(items))
+const { t } = useI18n()
 
 const input = templateRef('input')
 const showOptions = () => set(open, true)
 const hideOptions = () => set(open, false)
 const focus = () => get(input).$el.focus()
+
+function onQueryChange(value) {
+  set(query, value)
+  showOptions()
+}
 
 function onBlur(target) {
   if ('' === target.value && '' !== get(query)) {
@@ -229,8 +240,12 @@ watch(
   { immediate: true },
 )
 watch(modelValue, (ids) => set(selectedKeys, ids), { immediate: true })
-watch(selectedKeys, (ids) => emit('update:modelValue', ids))
-watch(selectedKeys, () => set(query, ''))
+watch(selectedKeys, (ids, previousIds) => {
+  emit('update:modelValue', ids)
+  set(query, '')
+
+  if (props.autoHide && ids.length > previousIds.length) hideOptions()
+})
 watch(query, (query) => emit('update:query', query))
 watch(query, async (query) => {
   const results = await filter(get(query), get(excludeSelected) ? get(filteredItems) : get(items))
@@ -239,8 +254,11 @@ watch(query, async (query) => {
 watch(inputQuery, (value) => set(query, null != value ? `${value}` : ''))
 syncRef(items, availableItems, { direction: 'ltr' })
 watch(query, (query) => (get(input).$el.value = query))
-watch(selectedKeys, () => props.autoHide && hideOptions())
-watch(query, () => showOptions())
 onMounted(() => nextTick().then(() => (get(input).$el.value = get(query))))
 onMounted(() => props.autofocus && focus())
 </script>
+
+<i18n>
+en:
+  noOptions: No options found.
+</i18n>

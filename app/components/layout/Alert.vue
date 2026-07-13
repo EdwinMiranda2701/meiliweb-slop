@@ -7,6 +7,7 @@
         <button
           v-if="dismissable"
           type="button"
+          :aria-label="t('close')"
           class="-m-1 shrink-0 rounded-md p-1 opacity-60 transition-opacity hover:opacity-100 focus-visible:ring-2 focus-visible:outline-none"
           @click="emit('close')">
           <Icon name="mingcute:close-fill" class="size-4" />
@@ -54,4 +55,5 @@ const themeIcon = computed(() =>
 <i18n>
 en:
   errorTitle: An error occured.
+  close: Dismiss
 </i18n>

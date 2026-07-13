@@ -5,6 +5,7 @@
       content: copied ? (copiedText ?? t('hints.copied')) : (copyText ?? t('hints.copy')),
     }"
     type="button"
+    :aria-label="copied ? (copiedText ?? t('hints.copied')) : (copyText ?? t('hints.copy'))"
     :class="[copied ? 'scale-125 rotate-12 skew-y-6' : 'text-gray-500 hover:text-gray-700']"
     @click="copy()">
     <Icon name="mingcute:copy-line" class="size-full" />

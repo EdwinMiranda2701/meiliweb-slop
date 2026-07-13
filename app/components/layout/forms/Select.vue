@@ -20,6 +20,7 @@ const classes = computed(() => {
     'text-sm',
     'transition-colors',
     'focus:outline-none',
+    'focus:border-primary-400',
     'focus:ring-2',
     'focus:ring-primary-500/20',
     'disabled:cursor-not-allowed',
@@ -28,7 +29,7 @@ const classes = computed(() => {
     'disabled:text-gray-500',
   ]
 
-  if (!props.noBorder) classes.push('border')
+  if (!props.noBorder) classes.push('border', 'border-gray-300', 'shadow-xs')
   if (!props.noPadding) classes.push('px-2', 'py-1.5')
   if (!props.noRounded) classes.push('rounded-lg')
 

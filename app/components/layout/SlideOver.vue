@@ -15,7 +15,7 @@
               leave-from="translate-x-0"
               leave-to="translate-x-full">
               <DialogPanel class="pointer-events-auto w-screen max-w-lg">
-                <div class="flex h-full flex-col overflow-y-auto bg-white/95 py-6 shadow-xl">
+                <div class="flex h-full flex-col overflow-y-auto bg-white py-6 shadow-xl">
                   <div class="px-4 sm:px-6">
                     <div class="flex items-start" :class="title ? 'justify-between' : 'justify-end'">
                       <DialogTitle v-if="title" class="text-2xl leading-6 font-semibold text-gray-900">

@@ -1,33 +1,43 @@
 <template>
   <div class="space-y-4 pb-4">
-    <header class="flex items-center justify-between gap-2 bg-gray-100 px-4 py-4 sm:px-6">
+    <header class="bg-gray-100 px-4 py-4 sm:px-6">
       <h3 class="text-md">{{ humanizeString(facet) }}</h3>
-      <SearchInput v-model="self.facetQuery" :input-attrs="{ placeholder: t('placeholder') }" class="grow" />
-      <button
-        type="button"
-        v-tippy="{
-          content: self.isLinked ? t('hints.unlink') : t('hints.link'),
-          hideOnClick: false,
-        }"
-        @click="self.isLinked = !self.isLinked">
-        <Icon name="rivet-icons:link" :class="self.isLinked ? 'text-green-600' : 'text-gray-700'" />
-      </button>
-      <button
-        type="button"
-        v-tippy="{
-          content: shouldIncludeAll ? t('hints.allValues') : t('hints.anyValue'),
-          hideOnClick: false,
-        }"
-        class="text-xs font-semibold text-gray-400"
-        @click="shouldIncludeAll = !shouldIncludeAll">
-        <template v-if="shouldIncludeAll">ALL</template>
-        <template v-else>ANY</template>
-      </button>
     </header>
 
-    <div class="space-y-2 px-4 sm:px-6">
+    <div class="space-y-4 px-4 sm:px-6">
+      <MultiCombobox
+        v-model="pendingFacetValues"
+        v-model:query="self.facetQuery"
+        :items="availableFacetHits"
+        :stringify="stringifyFacetHit"
+        :unique-key="facetHitKey"
+        :filter="keepServerResults"
+        :input-attrs="{ placeholder: t('placeholder') }"
+        hide-tags
+        auto-hide
+        class="block w-full">
+        <template #default="{ item, active }">
+          <li
+            class="relative flex cursor-default items-center justify-between gap-4 rounded-lg px-3 py-2 select-none focus:outline-none"
+            :class="active ? 'bg-primary-50 text-primary-900' : 'text-gray-900'">
+            <span class="truncate">{{ item.value }}</span>
+            <span class="shrink-0 text-xs text-gray-500">{{ item.count }}</span>
+          </li>
+        </template>
+        <template #no-options>
+          <li role="presentation" class="px-3 py-4 text-center text-sm text-gray-500 italic">
+            {{ t('emptyState') }}
+          </li>
+        </template>
+      </MultiCombobox>
+
+      <div class="flex flex-wrap gap-x-6 gap-y-3">
+        <Toggle v-model="self.isLinked" :label="t('labels.link')" />
+        <Toggle v-model="shouldIncludeAll" :label="t('labels.matchAll')" />
+      </div>
+
       <ul class="flex flex-wrap gap-2 empty:hidden">
-        <li v-for="[value, included] of appliedFilters.getAppliedFacet(facet).entries()">
+        <li v-for="[value, included] of appliedFilters.getAppliedFacet(facet).entries()" :key="value">
           <Badge
             as="button"
             type="button"
@@ -44,36 +54,18 @@
           </Badge>
         </li>
       </ul>
-
-      <ul v-if="facetHits.length > 0" class="flex flex-wrap gap-2">
-        <template v-for="{ value, count } of facetHits">
-          <li v-if="!appliedFilters.isValueApplied(facet, value)">
-            <Badge
-              as="button"
-              type="button"
-              theme="neutral"
-              class="text-sm"
-              @click="appliedFilters.applyStringFilter(facet, value)">
-              {{ value }}
-              <sup>{{ count }}</sup>
-            </Badge>
-          </li>
-        </template>
-      </ul>
-      <p v-else class="block text-center text-sm text-gray-500 italic">
-        {{ t('emptyState') }}
-      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { type FacetHit, Meilisearch } from 'meilisearch'
-import type { AppliedFilters } from '~/utils'
-import SearchInput from '~/components/layout/forms/SearchInput.vue'
-import Badge from '~/components/layout/Badge.vue'
+import { watchDebounced, watchDeep } from '@vueuse/core'
 import humanizeString from 'humanize-string'
-import { promiseTimeout, reactiveComputed, watchDeep } from '@vueuse/core'
+import type { FacetHit, Meilisearch } from 'meilisearch'
+import Badge from '~/components/layout/Badge.vue'
+import MultiCombobox from '~/components/layout/forms/MultiCombobox.vue'
+import Toggle from '~/components/layout/forms/Toggle.vue'
+import type { AppliedFilters } from '~/utils'
 
 type Props = {
   client: Meilisearch
@@ -89,25 +81,45 @@ const self = reactive({
   facetQuery: '',
   isLinked: false,
 })
+const pendingFacetValues = ref<string[]>([])
+const shouldIncludeAll = ref(false)
 
+const stringifyFacetHit = (facetHit: FacetHit) => facetHit.value
+const facetHitKey = (facetHit: FacetHit) => facetHit.value
+const keepServerResults = (_query: string, items: FacetHit[]) => items
+const availableFacetHits = computed(() =>
+  self.facetHits.filter(({ value }) => !props.appliedFilters.getAppliedFacet(props.facet).has(value)),
+)
+
+let latestFacetRequestId = 0
 const hydrateFacetValues = async () => {
+  const requestId = ++latestFacetRequestId
   const facetSearchParams = {
     facetName: props.facet,
     facetQuery: self.facetQuery,
     filter: self.isLinked ? `${props.appliedFilters.without(props.facet)}` : '',
   }
-  self.facetHits = (await props.client.index(props.indexUid).searchForFacetValues(facetSearchParams)).facetHits
+  const { facetHits } = await props.client.index(props.indexUid).searchForFacetValues(facetSearchParams)
+
+  if (requestId === latestFacetRequestId) {
+    self.facetHits = facetHits
+  }
 }
-const { facetHits } = toRefs(self)
-const shouldIncludeAll = ref(false)
-watch(toRef(self, 'facetQuery'), () => hydrateFacetValues())
-watch(toRef(self, 'isLinked'), () => hydrateFacetValues())
+
+watch(pendingFacetValues, (values) => {
+  const value = values.at(-1)
+  if (undefined === value) return
+
+  props.appliedFilters.applyStringFilter(props.facet, value)
+  pendingFacetValues.value = []
+  self.facetQuery = ''
+})
+watchDebounced(toRef(self, 'facetQuery'), hydrateFacetValues, { debounce: 150, maxWait: 500 })
+watch(toRef(self, 'isLinked'), hydrateFacetValues)
 watch(shouldIncludeAll, (value) => props.appliedFilters.includeAll(props.facet, value))
 onMounted(async () => {
   await nextTick()
-  watchDeep(toRef(props, 'appliedFilters'), async () => {
-    hydrateFacetValues()
-  })
+  watchDeep(toRef(props, 'appliedFilters'), hydrateFacetValues)
 })
 await hydrateFacetValues()
 </script>
@@ -116,11 +128,10 @@ await hydrateFacetValues()
 en:
   emptyState: No facet value found.
   placeholder: Search for facet values...
+  labels:
+    link: Link to other filters
+    matchAll: Match all selected values
   hints:
     included: "`{value}` is included - click to exclude"
     excluded: "`{value}` is excluded - click to remove"
-    anyValue: "Filter should match any selected value"
-    allValues: "Filter should match all selected values"
-    link: "Link to other filters"
-    unlink: "Unlink from other filters"
 </i18n>
